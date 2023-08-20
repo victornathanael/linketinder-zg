@@ -70,7 +70,7 @@ class Company {
         companies.each {company ->
             println "Name: ${company.name}"
             println "Email: ${company.corporateEmail}"
-            println "Skills: ${company.skills.join(', ')}\n"
+            println "Competências: ${company.skills.join(', ')}\n"
         }
     }
 

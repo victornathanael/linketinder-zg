@@ -71,7 +71,7 @@ class Candidate {
         candidates.each {candidate ->
             println "Name: ${candidate.name}"
             println "Email: ${candidate.email}"
-            println "Skills: ${candidate.skills.join(', ')}\n"
+            println "Competências: ${candidate.skills.join(', ')}\n"
         }
     }
 
