@@ -1,18 +1,7 @@
-package candidate
+package model
 
-import util.ClearConsole
-
-class Candidate {
-    String name
-    String email
-    String cpf
-    int age
-    String state
-    String cep
-    String personalDescription
-    List<String> skills = []
-
-    static def candidates = [
+class CandidateDAO {
+    static List<Candidate> candidates = [
             new Candidate(
                     name: "João",
                     email: "joao@gmail.com",
@@ -65,16 +54,6 @@ class Candidate {
             )
     ]
 
-
-    static void listCandidates() {
-        ClearConsole.clearConsole()
-        candidates.each {candidate ->
-            println "Name: ${candidate.name}"
-            println "Email: ${candidate.email}"
-            println "Competências: ${candidate.skills.join(', ')}\n"
-        }
-    }
-
     static void newCandidate() {
         Scanner input = new Scanner(System.in)
 
@@ -104,7 +83,7 @@ class Candidate {
         String skills = input.nextLine()
 
 
-        Candidate.candidates.add(new Candidate(
+        candidates.add(new Candidate(
                 name: name,
                 email: email,
                 cpf: cpf,
@@ -115,6 +94,5 @@ class Candidate {
                 skills: [skills]
         ))
     }
+
 }
-
-

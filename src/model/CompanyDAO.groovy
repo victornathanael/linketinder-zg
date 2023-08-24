@@ -1,18 +1,7 @@
-package company
+package model
 
-import util.ClearConsole
-
-class Company {
-    String name
-    String corporateEmail
-    String cnpj
-    String country
-    String state
-    String cep
-    String companyDescription
-    List<String> skills = []
-
-    static def companies = [
+class CompanyDAO {
+    static List<Company> companies = [
             new Company(
                     name: "Google",
                     corporateEmail: "contact@google.com",
@@ -65,14 +54,6 @@ class Company {
                     skills: ["MongoDB", "Redis", "Spring Boot", "HTML", "CSS"]
             )
     ]
-    static void listCompanies() {
-        ClearConsole.clearConsole()
-        companies.each {company ->
-            println "Name: ${company.name}"
-            println "Email: ${company.corporateEmail}"
-            println "Competências: ${company.skills.join(', ')}\n"
-        }
-    }
 
     static void newCompany() {
         Scanner input = new Scanner(System.in)
