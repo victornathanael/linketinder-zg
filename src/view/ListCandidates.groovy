@@ -4,7 +4,7 @@ import model.CandidateDAO
 import util.ClearConsole
 
 class ListCandidates {
-    static void listCandidates() {
+     static void listCandidates() {
         ClearConsole.clearConsole()
         CandidateDAO.candidates.each { candidate ->
             println "Name: ${candidate.name}"
