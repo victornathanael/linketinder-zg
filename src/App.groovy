@@ -1,9 +1,9 @@
-import model.CandidateDAO
-import model.CompanyDAO
 import util.ClearConsole
 import util.Menu
 import view.ListCandidates
 import view.ListCompanies
+import view.NewCandidate
+import view.NewCompany
 
 class App {
     static void main(String[] args) {
@@ -25,8 +25,8 @@ class App {
             switch (choice) {
                 case 1 -> ListCandidates.listCandidates()
                 case 2 -> ListCompanies.listCompanies()
-                case 3 -> CandidateDAO.newCandidate()
-                case 4 -> CompanyDAO.newCompany()
+                case 3 -> NewCandidate.newCandidate()
+                case 4 -> NewCompany.newCompany()
                 case 5 -> {
                     ClearConsole.clearConsole()
                     println "Saindo..."

@@ -1,7 +1,5 @@
 package model
 
-import util.ClearConsole
-
 class Company {
     String name
     String corporateEmail
