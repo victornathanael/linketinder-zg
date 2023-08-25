@@ -73,6 +73,21 @@ class Candidate {
     void setSkills(List<String> skills) {
         this.skills = skills
     }
+
+
+    @Override
+    String toString() {
+        return "Candidate{" +
+                "name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", cpf='" + cpf + '\'' +
+                ", age=" + age +
+                ", state='" + state + '\'' +
+                ", cep='" + cep + '\'' +
+                ", personalDescription='" + personalDescription + '\'' +
+                ", skills=" + skills +
+                '}';
+    }
 }
 
 
