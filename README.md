@@ -1,6 +1,26 @@
 # 🧑‍💻 Linketinder
 
-Bem-vindo ao Linketinder! Esse projeto está sendo desenvolvido em Groovy e combina as características do LinkedIn e do Tinder para criar uma plataforma inovadora. Ele visa simplificar e otimizar a busca por empregos, conectando candidatos a oportunidades de forma eficiente. O destaque é um sistema de "match" que permite empresas e candidatos a expressar interesse mútuo, aumentando as chances de encontrar as combinações ideais. 
+Bem-vindo ao Linketinder! Esse projeto está sendo desenvolvido em Groovy e Typescript e combina as características do LinkedIn e do Tinder para criar uma plataforma inovadora. Ele visa simplificar e otimizar a busca por empregos, conectando candidatos a oportunidades de forma eficiente. O destaque é um sistema de "match" que permite empresas e candidatos a expressar interesse mútuo, aumentando as chances de encontrar as combinações ideais. 
+
+***OBS: Até o presente momento o projeto ainda não tem uma comunicação entre o frontend e o backend, mas você pode testar as duas partes de forma separada.*** 
+
+📊 O Frontend possui um total de 4 páginas e 1 menu de navegação. As páginas são divididas da seguinte forma: 
+- Cadastro do Candidato,
+- Cadastro da Empresa,
+- Perfil do Candidato
+- Perfil da Empresa.
+
+Além disso existe um gráfico no perfil da empresa que indica quantas pessoas possuem determinada competência.
+
+⚙️ Para rodar o frontend você vai precisar do [Typescript](https://www.typescriptlang.org/download) e do [LiveServer](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) instalado na sua máquina. Navegue até a pasta ```Frontend``` e com o LiveServer rodando basta digitar no terminal:
+```
+tsc
+```
+![image](https://github.com/victornathanael/linketinder-zg/assets/99601659/3f1624da-7b29-4d68-b891-88685d41979a)
+
+
+
+### ***Abaixo você encontra de forma detalhada como rodar o backend.***
 
 ## ▶️ Primeiros Passos
 
