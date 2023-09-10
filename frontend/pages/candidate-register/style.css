@@ -1,0 +1,92 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Bahnschrift", sans-serif;
+    background-color: #F5F5F5;
+}
+
+header {
+    background: #0077B5;
+    background: linear-gradient(90deg, #0077B5 40%, #FF6B6B 60%);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    color: white;
+    text-align: center;
+    padding: 20px 0;
+}
+
+header h1 {
+    font-size: 28px;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    margin: 20px auto;
+    max-width: 800px;
+}
+
+main h3 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+#form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background-color: white;
+    border-radius: 5px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#form-container label {
+    font-size: 18px;
+    margin-bottom: 5px;
+}
+
+#form-container input[type="text"],
+#form-container input[type="email"],
+#form-container input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #EFEFEF;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+#button-container {
+    margin-top: 20px;
+}
+
+#create-candidate {
+    background-color: #0077B5;
+    color: white;
+    font-size: 18px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#create-candidate:disabled {
+    background-color: #EFEFEF;
+    color: #888;
+    cursor: not-allowed;
+}
+
+#create-candidate:hover {
+    background-color: #005E91;
+}
