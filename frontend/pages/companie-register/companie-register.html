@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastar empresa</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="shortcut icon" href="../../assets/images/favicon.ico" type="image/x-icon">
+</head>
+<body>
+<header>
+    <h1>Linketinder</h1>
+</header>
+<main>
+    <h3>Cadastro da empresa</h3>
+    <form id="form">
+        <div id="form-container">
+            <div class="name-container">
+                <label for="name">Nome: </label>
+                <input id="name" type="text">
+            </div>
+
+            <div class="email-container">
+                <label for="email">E-mail: </label>
+                <input id="email" type="email">
+            </div>
+
+            <div class="cnpj-container">
+                <label for="cnpj">CNPJ: </label>
+                <input id="cnpj" type="text">
+            </div>
+
+            <div class="country-container">
+                <label for="country">País: </label>
+                <input id="country" type="text">
+            </div>
+
+            <div class="state-container">
+                <label for="state">Estado: </label>
+                <input id="state" type="text">
+            </div>
+
+            <div class="cep-container">
+                <label for="cep">CEP: </label>
+                <input id="cep" type="text">
+            </div>
+
+            <div class="description-container">
+                <label for="description">Descrição: </label>
+                <input id="description" type="text">
+            </div>
+
+            <div class="skills-container">
+                <label for="skills">Competências (ex: java, angular...): </label>
+                <input id="skills" type="text">
+            </div>
+
+        </div>
+        <div id="button-container">
+            <button type="button" id="create-companie" disabled>Confirmar</button>
+        </div>
+    </form>
+</main>
+<script src="../../dist/companie-register/companie-register.js"></script>
+</body>
+</html>
