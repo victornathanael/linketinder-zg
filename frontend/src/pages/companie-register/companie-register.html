@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Cadastar candidato</title>
+    <title>Cadastar empresa</title>
     <link rel="stylesheet" href="style.css">
     <link rel="shortcut icon" href="../../assets/images/favicon.ico" type="image/x-icon">
 </head>
@@ -11,7 +11,7 @@
     <h1>Linketinder</h1>
 </header>
 <main>
-    <h3>Cadastro do candidato</h3>
+    <h3>Cadastro da empresa</h3>
     <form id="form">
         <div id="form-container">
             <div class="name-container">
@@ -24,14 +24,14 @@
                 <input id="email" type="email">
             </div>
 
-            <div class="cpf-container">
-                <label for="cpf">CPF: </label>
-                <input id="cpf" type="text">
+            <div class="cnpj-container">
+                <label for="cnpj">CNPJ: </label>
+                <input id="cnpj" type="text">
             </div>
 
-            <div class="age-container">
-                <label for="age">Idade: </label>
-                <input id="age" type="number">
+            <div class="country-container">
+                <label for="country">País: </label>
+                <input id="country" type="text">
             </div>
 
             <div class="state-container">
@@ -53,12 +53,13 @@
                 <label for="skills">Competências (ex: java, angular...): </label>
                 <input id="skills" type="text">
             </div>
+
         </div>
         <div id="button-container">
-            <button type="button" id="create-candidate" disabled>Confirmar</button>
+            <button type="button" id="create-companie" disabled>Confirmar</button>
         </div>
     </form>
 </main>
-<script src="../../dist/candidate-register/candidate-register.js"></script>
+<script src="../../../dist/companieRegister.min.js"></script>
 </body>
 </html>

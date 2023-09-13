@@ -1,16 +1,10 @@
+import {Vaga} from '../../classes/Vaga'
+
 const nomeVaga: HTMLInputElement = document.getElementById('name') as HTMLInputElement
 const descricaoVaga: HTMLInputElement = document.getElementById('description') as HTMLInputElement
 const linguagemVaga: HTMLInputElement = document.getElementById('language') as HTMLInputElement
 
 const criarVagaBtn: HTMLButtonElement = document.getElementById('create-job') as HTMLButtonElement
-
-class Vaga {
-    constructor(
-        public nome: string,
-        public descricao: string,
-        public language: string,
-    ) {}
-}
 
 function validarEntradaVaga(): boolean {
     const campos: HTMLInputElement[] = [
