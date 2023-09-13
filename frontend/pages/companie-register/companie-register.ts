@@ -1,5 +1,3 @@
-import {Empresa} from '../../classes/empresa';
-
 const nomeEmpresa: HTMLInputElement = document.getElementById('name') as HTMLInputElement
 const emailEmpresa: HTMLInputElement = document.getElementById('email') as HTMLInputElement
 const cnpjEmpresa: HTMLInputElement = document.getElementById('cnpj') as HTMLInputElement
@@ -10,6 +8,20 @@ const descricaoEmpresa: HTMLInputElement = document.getElementById('description'
 const competenciasEmpresa: HTMLInputElement = document.getElementById('skills') as HTMLInputElement
 
 const criarEmpresaBtn: HTMLButtonElement = document.getElementById('create-companie') as HTMLButtonElement
+
+class Empresa {
+    constructor(
+        public nome: string,
+        public email: string,
+        public cnpj: string,
+        public pais: string,
+        public estado: string,
+        public cep: string,
+        public descricao: string,
+        public competencias: string
+    ) {
+    }
+}
 
 function validarEntradaEmpresa(): boolean {
     const campos: HTMLInputElement[] = [

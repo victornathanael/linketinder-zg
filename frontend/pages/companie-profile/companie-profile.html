@@ -13,6 +13,22 @@
 <main>
     <div id="list-container">
         <h3>Olá Empresa!</h3>
+        <details>
+            <summary>Criar Vaga</summary>
+            <div class="name-container">
+                <label for="name">Nome: </label>
+                <input id="name" type="text">
+            </div>
+            <div class="description-container">
+                <label for="description">Descrição: </label>
+                <input id="description" type="text">
+            </div>
+            <div class="language-container">
+                <label for="language">Linguagens de programação (ex: java, angular...): </label>
+                <input id="language" type="text">
+            </div>
+            <button id="create-job" disabled>Criar vaga</button>
+        </details>
         <div id="chart-container">
             <canvas id="skillsChart"></canvas>
         </div>
@@ -25,5 +41,6 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="chart.js"></script>
 <script src="../../dist/companie-profile/companie-profile.js"></script>
+<script src="../../dist/companie-profile/create-job.js"></script>
 </body>
 </html>

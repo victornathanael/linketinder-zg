@@ -1,5 +1,3 @@
-import {Candidato} from "../../classes/candidato";
-
 const nomeCandidato: HTMLInputElement = document.getElementById('name') as HTMLInputElement
 const emailCandidato: HTMLInputElement = document.getElementById('email') as HTMLInputElement
 const cpfCandidato: HTMLInputElement = document.getElementById('cpf') as HTMLInputElement
@@ -10,6 +8,20 @@ const descricaoCandidato: HTMLInputElement = document.getElementById('descriptio
 const competenciasCandidato: HTMLInputElement = document.getElementById('skills') as HTMLInputElement
 
 const criarCandidatoBtn: HTMLButtonElement = document.getElementById('create-candidate') as HTMLButtonElement
+
+class Candidato {
+    constructor(
+        public nome: string,
+        public email: string,
+        public cpf: string,
+        public idade: string,
+        public estado: string,
+        public cep: string,
+        public descricao: string,
+        public competencias: string
+    ) {
+    }
+}
 
 function validarEntradaCandidato(): boolean {
     const campos: HTMLInputElement[] = [
