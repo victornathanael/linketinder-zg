@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Cadastar candidato</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="./style.css">
     <link rel="shortcut icon" href="../../assets/images/favicon.ico" type="image/x-icon">
 </head>
 <body>
@@ -17,21 +17,25 @@
             <div class="name-container">
                 <label for="name">Nome: </label>
                 <input id="name" type="text">
+                <sup id="name-error" style="color: red; display: none">Digite um nome válido</sup>
             </div>
 
             <div class="email-container">
                 <label for="email">E-mail: </label>
                 <input id="email" type="email">
+                <sup id="email-error" style="color: red; display: none">Digite um email válido (ex: example@email.com)</sup>
             </div>
 
             <div class="cpf-container">
                 <label for="cpf">CPF: </label>
                 <input id="cpf" type="text">
+                <sup id="cpf-error" style="color: red; display: none">Digite um CPF válido (ex: XXX.XXX.XXX-XX)</sup>
             </div>
 
             <div class="age-container">
                 <label for="age">Idade: </label>
-                <input id="age" type="number">
+                <input min="16" max="100" id="age" type="number">
+                <sup id="age-error" style="color: red; display: none">Digite uma idade válida</sup>
             </div>
 
             <div class="state-container">
@@ -42,6 +46,7 @@
             <div class="cep-container">
                 <label for="cep">CEP: </label>
                 <input id="cep" type="text">
+                <sup id="cep-error" style="color: red; display: none">Digite um CEP válido (ex: XXXXX-XXX)</sup>
             </div>
 
             <div class="description-container">
