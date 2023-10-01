@@ -18,9 +18,11 @@ tsc
 ```
 ![image](https://github.com/victornathanael/linketinder-zg/assets/99601659/3f1624da-7b29-4d68-b891-88685d41979a)
 
-
-
 ### ***Abaixo você encontra de forma detalhada como rodar o backend.***
+
+![MER](https://github.com/victornathanael/linketinder-zg/assets/99601659/8997ce13-0cb1-4592-b370-0ee9f8ee99c1)
+
+
 
 ## ▶️ Primeiros Passos
 
