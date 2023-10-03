@@ -93,7 +93,7 @@ INSERT INTO candidatos (nome, email, cpf, idade, estado, cep, descricao) VALUES
     ('Carlos Santos', 'carlos@email.com', '111.222.333-44', 28, 'MG', '56789-012', 'Analista de Sistemas');
 
 -- Relacionamento Candidatos e Competências
-INSERT INTO candidatos_competencias (candidato_id, competencia_id) VALUES
+INSERT INTO competencias_candidatos (candidato_id, competencia_id) VALUES
     (1, 1), (1, 2), (1, 3), (2, 2), (2, 4), (3, 3), (3, 5);
 
 INSERT INTO empresas (nome, email, cnpj, pais, estado, cep, descricao) VALUES
@@ -102,7 +102,7 @@ INSERT INTO empresas (nome, email, cnpj, pais, estado, cep, descricao) VALUES
     ('InovaSoft', 'contato@inovasoft.com', '11.22.33/0001-03', 'Brasil', 'MG', '56789-012', 'Soluções inovadoras');
 
 -- Relacionamento Empresas e Competências
-INSERT INTO empresas_competencias (empresa_id, competencia_id) VALUES
+INSERT INTO competencias_empresas (empresa_id, competencia_id) VALUES
     (1, 1), (1, 2), (2, 3), (3, 4), (3, 5);
 
 INSERT INTO vagas (nome, descricao, empresa_id) VALUES
@@ -111,27 +111,27 @@ INSERT INTO vagas (nome, descricao, empresa_id) VALUES
     ('Engenheiro de Software', 'Desenvolvimento de software', 3);
 
 -- Relacionamento Vagas e Competências
-INSERT INTO vagas_competencias (vaga_id, competencia_id) VALUES
+INSERT INTO competencias_vagas (vaga_id, competencia_id) VALUES
     (1, 1), (1, 2), (1, 3), (2, 2), (2, 4), (3, 3), (3, 5);
 
 -- Consulta para obter todos os candidatos e suas competências:
 SELECT c.nome as candidato, c.email, array_agg(co.nome) as competencias
 FROM candidatos c
-LEFT JOIN candidatos_competencias cc ON c.id = cc.candidato_id
+LEFT JOIN competencias_candidatos cc ON c.id = cc.candidato_id
 LEFT JOIN competencias co ON cc.competencia_id = co.id
 GROUP BY c.id;
 
 -- Consulta para obter todas as empresas e suas competências:
 SELECT e.nome as empresa, e.email, array_agg(co.nome) as competencias
 FROM empresas e
-LEFT JOIN empresas_competencias ec ON e.id = ec.empresa_id
+LEFT JOIN competencias_empresas ec ON e.id = ec.empresa_id
 LEFT JOIN competencias co ON ec.competencia_id = co.id
 GROUP BY e.id;
 
 -- Consulta para obter todas as vagas e suas competências:
 SELECT v.nome as vaga, v.descricao, array_agg(co.nome) as competencias
 FROM vagas v
-LEFT JOIN vagas_competencias vc ON v.id = vc.vaga_id
+LEFT JOIN competencias_vagas vc ON v.id = vc.vaga_id
 LEFT JOIN competencias co ON vc.competencia_id = co.id
 GROUP BY v.id;
 
@@ -139,7 +139,7 @@ GROUP BY v.id;
 -- Consulta para obter todas as competências associadas a uma vaga específica:
 SELECT v.nome as vaga, array_agg(co.nome) as competencias
 FROM vagas v
-LEFT JOIN vagas_competencias vc ON v.id = vc.vaga_id
+LEFT JOIN competencias_vagas vc ON v.id = vc.vaga_id
 LEFT JOIN competencias co ON vc.competencia_id = co.id
 WHERE v.id = 1
 GROUP BY v.id;
@@ -147,7 +147,7 @@ GROUP BY v.id;
 -- Consulta para obter todas as competências de um candidato específico:
 SELECT c.nome as candidato, array_agg(co.nome) as competencias
 FROM candidatos c
-LEFT JOIN candidatos_competencias cc ON c.id = cc.candidato_id
+LEFT JOIN competencias_candidatos cc ON c.id = cc.candidato_id
 LEFT JOIN competencias co ON cc.competencia_id = co.id
 WHERE c.id = 1
 GROUP BY c.id;
