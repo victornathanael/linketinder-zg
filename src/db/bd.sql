@@ -34,7 +34,7 @@ CREATE TABLE vagas (
     nome VARCHAR(150) NOT NULL,
     descricao TEXT NOT NULL,
     empresa_id INT NOT NULL,
-    FOREIGN KEY (empresa_id) REFERENCES empresas(id)
+    FOREIGN KEY (empresa_id) REFERENCES empresas(id) ON DELETE CASCADE
 );
 
 -- Relacionamento entre Candidatos e Vagas (Curtidas)
@@ -60,8 +60,8 @@ CREATE TABLE competencias_candidatos (
      candidato_id INT NOT NULL,
      competencia_id INT NOT NULL,
      PRIMARY KEY (candidato_id, competencia_id),
-     FOREIGN KEY (candidato_id) REFERENCES candidatos(id),
-     FOREIGN KEY (competencia_id) REFERENCES competencias(id)
+     FOREIGN KEY (candidato_id) REFERENCES candidatos(id) ON DELETE CASCADE ,
+     FOREIGN KEY (competencia_id) REFERENCES competencias(id) ON DELETE CASCADE
 );
 
 -- Relacionamento entre Empresas e Competencias (Competencias)
@@ -69,8 +69,8 @@ CREATE TABLE competencias_empresas (
     empresa_id INT NOT NULL,
     competencia_id INT NOT NULL,
     PRIMARY KEY (empresa_id, competencia_id),
-    FOREIGN KEY (empresa_id) REFERENCES empresas(id),
-    FOREIGN KEY (competencia_id) REFERENCES competencias(id)
+    FOREIGN KEY (empresa_id) REFERENCES empresas(id) ON DELETE CASCADE,
+    FOREIGN KEY (competencia_id) REFERENCES competencias(id) ON DELETE CASCADE
 );
 
 -- Relacionamento entre Vagas e Competencias (Competencias)
@@ -78,8 +78,8 @@ CREATE TABLE competencias_vagas (
     vaga_id INT NOT NULL,
     competencia_id INT NOT NULL,
     PRIMARY KEY (vaga_id, competencia_id),
-    FOREIGN KEY (vaga_id) REFERENCES vagas(id),
-    FOREIGN KEY (competencia_id) REFERENCES competencias(id)
+    FOREIGN KEY (vaga_id) REFERENCES vagas(id) ON DELETE CASCADE,
+    FOREIGN KEY (competencia_id) REFERENCES competencias(id) ON DELETE CASCADE
 );
 
 -- Inserções em Competências:
