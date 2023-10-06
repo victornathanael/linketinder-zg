@@ -1,4 +1,4 @@
-package model
+package model.Candidate
 
 class Candidate {
     private String name

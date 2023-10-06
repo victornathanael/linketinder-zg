@@ -1,6 +1,7 @@
-package model
+package model.Company
 
 import db.ConexaoJDBC
+
 import util.ClearConsole
 
 import java.sql.*

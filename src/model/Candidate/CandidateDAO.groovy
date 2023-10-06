@@ -1,4 +1,4 @@
-package model
+package model.Candidate
 
 import db.ConexaoJDBC
 import util.ClearConsole

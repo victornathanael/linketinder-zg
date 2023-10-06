@@ -1,4 +1,4 @@
-package model
+package model.Company
 
 class Company {
     String name
