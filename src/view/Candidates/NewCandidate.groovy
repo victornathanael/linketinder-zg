@@ -1,7 +1,7 @@
 package view.Candidates
 
-import model.Candidate
-import model.CandidateDAO
+import model.Candidate.Candidate
+import model.Candidate.CandidateDAO
 
 class NewCandidate {
     static void newCandidate() {

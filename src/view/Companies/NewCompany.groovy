@@ -1,6 +1,7 @@
-package view
+package view.Companies
 
-import model.CompanyDAO
+import model.Company.Company
+import model.Company.CompanyDAO
 
 class NewCompany {
     static void newCompany() {
@@ -30,6 +31,7 @@ class NewCompany {
         print " Digite as competências da nova empresa (ex: java, angular, groovy): "
         String skills = input.nextLine()
 
-        CompanyDAO.saveCompany(name, corporateEmail, cnpj, country, state, cep, companyDescription, skills)
+        Company company = new Company(name, corporateEmail, cnpj, country, state, cep, companyDescription, skills)
+        CompanyDAO.create(company)
     }
 }

@@ -1,6 +1,6 @@
-package view
+package view.Companies
 
-import controller.ConexaoJDBC
+import db.ConexaoJDBC
 import util.ClearConsole
 
 import java.sql.Connection
@@ -9,7 +9,7 @@ import java.sql.ResultSet
 
 class ListCompanies {
     static void listCompanies() {
-        String BUSCAR_TODOS = "SELECT * FROM empresas";
+        String BUSCAR_TODOS = "SELECT c.id, c.nome, c.email, c.cnpj, STRING_AGG(co.nome, ', ') AS competencias FROM empresas c LEFT JOIN competencias_empresas cc ON c.id = cc.empresa_id LEFT JOIN competencias co ON cc.competencia_id = co.id GROUP BY c.id"
 
         try {
             Connection connection = ConexaoJDBC.conectar()
@@ -29,16 +29,17 @@ class ListCompanies {
                 println("Listando empresas...");
                 println("-------------------------------");
                 while (res.next()) {
-                    println("ID: " + res.getInt(1));
-                    println("Nome: " + res.getString(2));
-                    println("Email: " + res.getString(3));
-                    println("CNPJ: " + res.getString(4));
+                    println("ID: " + res.getInt("id"));
+                    println("Nome: " + res.getString("nome"));
+                    println("Email: " + res.getString("email"));
+                    println("CNPJ: " + res.getString("cnpj"));
+                    println("Competências: " + res.getString("competencias"))
                     println("-------------------------------");
                 }
                 ConexaoJDBC.desconectar(connection)
 
             } else {
-                println("Não existem empresas cadastrados");
+                println("Não existem empresas cadastradas");
             }
 
         } catch (Exception e) {
