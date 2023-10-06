@@ -1,44 +1,32 @@
 package test
 
-import model.Candidate
-import model.CandidateDAO
-import org.junit.Test
+import db.ConexaoJDBC
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*
+import java.sql.Connection;
 
-class TestCandidate {
+import static org.junit.jupiter.api.Assertions.*;
+
+class ConexaoJDBCTest {
 
     @Test
-    void testListCandidate() {
-        CandidateDAO candidateDAO = new CandidateDAO()
-        if (candidateDAO.getCandidates().size() > 0) {
-            assertTrue(true)
-        } else {
-            fail()
+    void testConectar() {
+        Connection connection = ConexaoJDBC.conectar();
+
+        assertNotNull(connection, "A conexão não deve ser nula");
+
+        ConexaoJDBC.desconectar(connection);
+    }
+
+    @Test
+    void testDesconectar() {
+        Connection connection = ConexaoJDBC.conectar();
+        ConexaoJDBC.desconectar(connection);
+
+        try {
+            assertTrue(connection.isClosed(), "A conexão deve estar fechada após chamar desconectar");
+        } catch (Exception ignored) {
+            fail("Erro ao verificar o status da conexão após desconectar");
         }
     }
-
-    @Test
-    void testNewCandidate() {
-        CandidateDAO candidateDAO = new CandidateDAO()
-
-        candidateDAO.getCandidates().clear()
-        candidateDAO.saveCandidate("Victor", "victor@gmail.com", "12312312312", 23, "CE", "320151000", "bla bla bla", "groovy, junit")
-
-        List<Candidate> candidates = candidateDAO.getCandidates();
-        Candidate firstCandidate = candidates.get(0);
-
-        assertEquals(1, candidateDAO.getCandidates().size())
-
-        assertEquals("Victor", firstCandidate.getName());
-        assertEquals("victor@gmail.com", firstCandidate.getEmail());
-        assertEquals("12312312312", firstCandidate.getCpf());
-        assertEquals(23, firstCandidate.getAge());
-        assertEquals("CE", firstCandidate.getState());
-        assertEquals("320151000", firstCandidate.getCep());
-        assertEquals("bla bla bla", firstCandidate.getPersonalDescription());
-        assertEquals("groovy, junit", firstCandidate.getSkills().get(0));
-    }
 }
-
-
