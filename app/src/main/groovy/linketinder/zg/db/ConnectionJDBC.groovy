@@ -3,34 +3,28 @@ package linketinder.zg.db
 import java.sql.*
 
 class ConnectionJDBC {
-    static Connection conectar() {
+    private static final String url = "jdbc:postgresql://localhost:5432/linketinder"
+    private static final String user = "geek"
+    private static final String password = "university"
+
+    static Connection connect() {
         try {
-            Class.forName("org.postgresql.Driver");
-
-            String url = "jdbc:postgresql://localhost:5432/linketinder";
-            String user = "geek";
-            String password = "university";
-
-            System.out.println("Conexão bem-sucedida!");
-            return DriverManager.getConnection(url, user, password);
-
-        } catch (ClassNotFoundException | SQLException e) {
-            e.printStackTrace();
-            System.err.println("Verifique se o servidor está ativo.");
-            System.exit(-42);
-            return null;
+            Class.forName("org.postgresql.Driver")
+            return DriverManager.getConnection(url, user, password)
+        } catch (SQLException e) {
+            e.printStackTrace()
+            throw new RuntimeException("Erro ao conectar ao banco de dados", e)
         }
     }
 
-    static void desconectar(Connection connection) {
+    static void disconnect(Connection connection) {
         if (connection != null) {
             try {
-                connection.close();
+                connection.close()
             } catch (SQLException e) {
-                e.printStackTrace();
+                e.printStackTrace()
+                throw new RuntimeException("Erro ao fechar a conexão com o banco de dados", e)
             }
         }
     }
-
-
 }
