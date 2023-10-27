@@ -1,48 +1,25 @@
 package linketinder.zg.view.Jobs
 
-import linketinder.zg.db.ConnectionJDBC
+import linketinder.zg.model.Job.JobsDAO
 import linketinder.zg.util.ClearConsole
 
 import java.sql.*
 
 class ListJobs {
     static void listJobs() {
-        String BUSCAR_TODOS = "SELECT v.id, v.nome, v.descricao, e.nome AS empresa_nome FROM vagas v JOIN empresas e ON v.empresa_id = e.id"
+        JobsDAO.list()
+    }
 
-        try {
-            Connection connection = ConnectionJDBC.conectar()
-            PreparedStatement vagas = connection.prepareStatement(
-                    BUSCAR_TODOS,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY
-            );
-            ResultSet res = vagas.executeQuery()
-
-            res.last()
-            int qtd = res.getRow()
-            res.beforeFirst()
-
-            if (qtd > 0) {
-                ClearConsole.clearConsole()
-                println("Listando vagas...");
-                println("-------------------------------");
-                while (res.next()) {
-                    println("ID: " + res.getInt("id"));
-                    println("Nome: " + res.getString("nome"));
-                    println("Descrição: " + res.getString("descricao"));
-                    println("Empresa: " + res.getString("empresa_nome"));
-                    println("-------------------------------");
-                }
-                ConnectionJDBC.desconectar(connection)
-
-            } else {
-                println("Não existem candidatos cadastrados")
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.err.println("Erro ao buscar todos os candidatos.")
-            System.exit(-42);
+    static void textListJob(ResultSet resultSet) {
+        ClearConsole.clearConsole()
+        println("Listando vagas...");
+        println("-------------------------------");
+        while (resultSet.next()) {
+            println("ID: " + resultSet.getInt("id"));
+            println("Nome: " + resultSet.getString("nome"));
+            println("Descrição: " + resultSet.getString("descricao"));
+            println("Empresa: " + resultSet.getString("empresa_nome"));
+            println("-------------------------------");
         }
     }
 }

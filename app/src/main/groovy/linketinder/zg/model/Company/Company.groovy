@@ -1,5 +1,7 @@
 package linketinder.zg.model.Company
 
+import linketinder.zg.model.Skill.Skill
+
 class Company {
     String name
     String corporateEmail
@@ -8,9 +10,9 @@ class Company {
     String state
     String cep
     String companyDescription
-    String skills
+    List<Skill> skills
 
-    Company(String name, String corporateEmail, String cnpj, String country, String state, String cep, String companyDescription, String skills) {
+    Company(String name, String corporateEmail, String cnpj, String country, String state, String cep, String companyDescription, List<Skill> skills) {
         this.name = name
         this.corporateEmail = corporateEmail
         this.cnpj = cnpj
@@ -19,6 +21,16 @@ class Company {
         this.cep = cep
         this.companyDescription = companyDescription
         this.skills = skills
+    }
+
+    Company(String name, String corporateEmail, String cnpj, String country, String state, String cep, String companyDescription) {
+        this.name = name
+        this.corporateEmail = corporateEmail
+        this.cnpj = cnpj
+        this.country = country
+        this.state = state
+        this.cep = cep
+        this.companyDescription = companyDescription
     }
 
     String getName() {
@@ -77,13 +89,11 @@ class Company {
         this.companyDescription = companyDescription
     }
 
-    String getSkills() {
+    List<Skill> getSkills() {
         return skills
     }
 
-    void setSkills(String skills) {
+    void setSkills(List<Skill> skills) {
         this.skills = skills
     }
-
-
 }

@@ -1,6 +1,8 @@
 package linketinder.zg.view.Jobs
 
+import linketinder.zg.model.Job.Jobs
 import linketinder.zg.model.Job.JobsDAO
+import linketinder.zg.util.InputUtils
 
 class UpdateJob {
     static void updateJob() {
@@ -9,5 +11,14 @@ class UpdateJob {
         print("Informe o id da vaga: ");
         int id = input.nextInt();
         JobsDAO.update(id, input)
+    }
+
+    static Jobs inputsUpdateJob(int id) {
+        String name = InputUtils.getStringInput("Digite o novo nome: ")
+        String description = InputUtils.getStringInput("Digite a nova descrição: ")
+
+        Jobs jobs = new Jobs(name, description, id)
+
+        return jobs
     }
 }

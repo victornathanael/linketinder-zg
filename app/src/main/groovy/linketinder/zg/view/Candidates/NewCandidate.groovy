@@ -2,37 +2,26 @@ package linketinder.zg.view.Candidates
 
 import linketinder.zg.model.Candidate.Candidate
 import linketinder.zg.model.Candidate.CandidateDAO
+import linketinder.zg.model.Skill.Skill
+import linketinder.zg.util.InputUtils
 
 class NewCandidate {
     static void newCandidate() {
-        Scanner input = new Scanner(System.in)
+        CandidateDAO.create(inputsNewCandidate())
+    }
 
-        print " Digite o nome do novo candidato: "
-        String name = input.nextLine()
-
-        print " Digite o email do novo candidato: "
-        String email = input.nextLine()
-
-        print " Digite o cpf do novo candidato: "
-        String cpf = input.nextLine()
-
-        print " Digite a idade do novo candidato: "
-        int age = input.nextInt()
-        input.nextLine()
-
-        print " Digite o estado do novo candidato: "
-        String state = input.nextLine()
-
-        print " Digite o CEP do novo candidato: "
-        String cep = input.nextLine()
-
-        print " Digite a descrição do novo candidato: "
-        String personalDescription = input.nextLine()
-
-        print " Digite as competências do novo candidato (ex: java, angular, groovy): "
-        String skills = input.nextLine()
+    static Candidate inputsNewCandidate() {
+        String name = InputUtils.getStringInput("Digite o nome do novo candidato: ");
+        String email = InputUtils.getStringInput("Digite o email do novo candidato: ");
+        String cpf = InputUtils.getStringInput("Digite o cpf do novo candidato: ");
+        int age = InputUtils.getIntInput("Digite a idade do novo candidato: ");
+        InputUtils.getStringInput("");
+        String state = InputUtils.getStringInput("Digite o estado do novo candidato: ");
+        String cep = InputUtils.getStringInput("Digite o CEP do novo candidato: ");
+        String personalDescription = InputUtils.getStringInput("Digite a descrição do novo candidato: ");
+        List<Skill> skills = InputUtils.getSkillsInput("Digite as competências do novo candidato (ex: java, angular, groovy): ")
 
         Candidate candidate = new Candidate(name, email, cpf, age, state, cep, personalDescription, skills)
-        CandidateDAO.create(candidate)
+        return candidate
     }
 }

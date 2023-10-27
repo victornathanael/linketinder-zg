@@ -1,5 +1,7 @@
 package linketinder.zg.model.Candidate
 
+import linketinder.zg.model.Skill.Skill
+
 class Candidate {
     private String name
     private String email
@@ -8,9 +10,9 @@ class Candidate {
     private String state
     private String cep
     private String personalDescription
-    private String skills
+    private List<Skill> skills
 
-    Candidate(String name, String email, String cpf, int age, String state, String cep, String personalDescription, String skills) {
+    Candidate(String name, String email, String cpf, int age, String state, String cep, String personalDescription, List<Skill>  skills) {
         this.name = name
         this.email = email
         this.cpf = cpf
@@ -19,6 +21,16 @@ class Candidate {
         this.cep = cep
         this.personalDescription = personalDescription
         this.skills = skills
+    }
+
+    Candidate(String name, String email, String cpf, int age, String state, String cep, String personalDescription) {
+        this.name = name
+        this.email = email
+        this.cpf = cpf
+        this.age = age
+        this.state = state
+        this.cep = cep
+        this.personalDescription = personalDescription
     }
 
     String getName() {
@@ -77,14 +89,13 @@ class Candidate {
         this.personalDescription = personalDescription
     }
 
-    String getSkills() {
+    List<Skill> getSkills() {
         return skills
     }
 
-    void setSkills(String skills) {
+    void setSkills(List<Skill> skills) {
         this.skills = skills
     }
-
 
     @Override
     String toString() {

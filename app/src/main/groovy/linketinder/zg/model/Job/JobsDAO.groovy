@@ -2,136 +2,132 @@ package linketinder.zg.model.Job
 
 import linketinder.zg.db.ConnectionJDBC
 
-import linketinder.zg.util.ClearConsole
+import static linketinder.zg.util.ClearConsole.*
+import static linketinder.zg.view.Jobs.ListJobs.*
+import static linketinder.zg.view.Jobs.UpdateJob.*
+
+import static linketinder.zg.util.HandleExceptionDB.*
+import static linketinder.zg.util.PrepareStatement.*
+import static linketinder.zg.util.GetRowCount.*
+
 
 import java.sql.*
 
 class JobsDAO {
-    static void create(Jobs jobs) {
+    public static final String SEARCH_COMPANY = "SELECT id FROM empresas WHERE id = ?"
+    public static final String INSERT_JOB = "INSERT INTO vagas (nome, descricao, empresa_id) VALUES (?, ?, ?)"
+    public static final String UPDATE_CANDIDATE = "UPDATE vagas SET nome=?, descricao=? WHERE id=?"
+    public static final String SEARCH_JOB_BY_ID = "SELECT * FROM vagas WHERE id=?"
+    public static final String SEARCH_ALL_JOBS = "SELECT v.id, v.nome, v.descricao, e.nome AS empresa_nome FROM vagas v JOIN empresas e ON v.empresa_id = e.id"
+    public static final String DELETE_JOB = "DELETE FROM vagas WHERE id=?"
 
-        String BUSCAR_EMPRESA = "SELECT id FROM empresas WHERE id = ?";
-        String INSERIR_VAGA = "INSERT INTO vagas (nome, descricao, empresa_id) VALUES (?, ?, ?)";
+    static void list() {
+        try (Connection connection = ConnectionJDBC.connect()) {
+            PreparedStatement allJobs = prepareAllStatement(connection, SEARCH_ALL_JOBS)
+            ResultSet resultSet = allJobs.executeQuery()
+            allJobs.close()
 
-        try {
-            Connection connection = ConnectionJDBC.conectar();
+            int jobCount = getRowCount(resultSet)
 
-            // Verificar se a empresa com o ID existe
-            PreparedStatement verificarEmpresa = connection.prepareStatement(BUSCAR_EMPRESA);
-            verificarEmpresa.setInt(1, jobs.idEmpresa);
-            ResultSet resultado = verificarEmpresa.executeQuery();
+            if (jobCount > 0) {
+                textListJob(resultSet)
+                ConnectionJDBC.disconnect(connection)
 
-            if (resultado.next()) {
-                // Se a empresa existe, inserir a vaga
-                PreparedStatement salvarVaga = connection.prepareStatement(INSERIR_VAGA);
-                salvarVaga.setString(1, jobs.name);
-                salvarVaga.setString(2, jobs.description);
-                salvarVaga.setInt(3, jobs.idEmpresa);
-
-                salvarVaga.executeUpdate();
-                salvarVaga.close();
-
-                System.out.println("A vaga " + jobs.name + " foi inserida com sucesso.");
             } else {
-                System.err.println("A empresa com o ID " + jobs.idEmpresa + " não existe.");
+                println("Não existem vagas cadastradas")
             }
 
-            verificarEmpresa.close();
-            ConnectionJDBC.desconectar(connection);
-
         } catch (Exception e) {
-            e.printStackTrace();
-            System.err.println("Erro ao salvar vaga no banco de dados.");
-            System.exit(-42);
+            handleExceptionDB(e, "listar")
         }
     }
 
-    static void update(int id, Scanner input) {
-        String BUSCAR_POR_ID = "SELECT * FROM vagas WHERE id=?"
-        
-        try {
-            Connection connection = ConnectionJDBC.conectar()
-            PreparedStatement job = connection.prepareStatement(
-                    BUSCAR_POR_ID,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY
-            )
+    static void create(Jobs jobs) {
+        try (Connection connection = ConnectionJDBC.connect()) {
+            PreparedStatement verifyCompany = connection.prepareStatement(SEARCH_COMPANY)
+            verifyCompany.setInt(1, jobs.idEmpresa)
+            ResultSet resultSet = verifyCompany.executeQuery()
 
-            job.setInt(1, id);
-            ResultSet res = job.executeQuery();
+            if (resultSet.next()) {
+                setJobParameters(connection, jobs)
 
-            res.last();
-            int qtd = res.getRow();
-            res.beforeFirst();
+                System.out.println("A vaga " + jobs.name + " foi inserida com sucesso.")
+            } else {
+                System.err.println("A empresa com o ID " + jobs.idEmpresa + " não existe.")
+            }
 
-            if (qtd > 0) {
-                ClearConsole.clearConsole()
+            verifyCompany.close();
+            ConnectionJDBC.disconnect(connection);
 
-                input.nextLine()
+        } catch (Exception e) {
+            handleExceptionDB(e, "criar")
+        }
+    }
 
-                print("Digite o novo nome: ")
-                String novoNome = input.nextLine()
+    static void update(int id) {
+        try (Connection connection = ConnectionJDBC.connect()) {
+            PreparedStatement jobById = prepareByIdStatement(id, connection, SEARCH_JOB_BY_ID)
+            ResultSet resultSet = jobById.executeQuery()
+            jobById.close()
 
-                print("Digite a nova descrição: ")
-                String novaDescricao = input.nextLine()
+            int jobCount = getRowCount(resultSet)
 
-                // Lógica para atualizar o banco de dados
-                String UPDATE_CANDIDATO = "UPDATE vagas SET nome=?, descricao=? WHERE id=?"
+            if (jobCount > 0) {
+                clearConsole()
 
-                PreparedStatement atualizarVaga = connection.prepareStatement(UPDATE_CANDIDATO)
+                Jobs jobs = inputsUpdateJob(id)
+                setUpdateJobParameters(connection, jobs, id)
 
-                atualizarVaga.setString(1, novoNome)
-                atualizarVaga.setString(2, novaDescricao)
-                atualizarVaga.setInt(3, id)
-
-                atualizarVaga.executeUpdate();
-
-                ClearConsole.clearConsole()
+                clearConsole()
                 print("Vaga com ID " + id + " atualizado com sucesso.")
             } else {
-                ClearConsole.clearConsole()
+                clearConsole()
                 println("Não existe uma vaga com o id informado.")
             }
         } catch (SQLException e) {
-            e.printStackTrace()
-            print("Erro ao atualizar vaga no banco de dados.")
+            handleExceptionDB(e, "atualizar")
         }
     }
 
     static void delete(int id) {
-        String BUSCAR_POR_ID = "SELECT * FROM vagas WHERE id=?"
-        String DELETE_CANDIDATO = "DELETE FROM vagas WHERE id=?"
+        try (Connection connection = ConnectionJDBC.connect()) {
+            PreparedStatement jobById = prepareByIdStatement(id, connection, SEARCH_JOB_BY_ID)
+            ResultSet resultSet = jobById.executeQuery()
+            jobById.close()
 
-        try {
-            Connection connection = ConnectionJDBC.conectar()
-            PreparedStatement job = connection.prepareStatement(
-                    BUSCAR_POR_ID,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY
-            );
-            job.setInt(1, id);
-            ResultSet res = job.executeQuery();
+            int jobCount = getRowCount(resultSet)
 
-            res.last();
-            int qtd = res.getRow();
-            res.beforeFirst();
-
-            if (qtd > 0) {
-                PreparedStatement deletarVaga = connection.prepareStatement(DELETE_CANDIDATO)
-
-                deletarVaga.setInt(1, id)
-                deletarVaga.executeUpdate()
-
-                ClearConsole.clearConsole()
+            if (jobCount > 0) {
+                prepareDeleteStatement(id, connection, DELETE_JOB)
+                clearConsole()
                 print("A vaga com ID " + id + " deletado com sucesso.")
 
             } else {
-                ClearConsole.clearConsole()
+                clearConsole()
                 println("Não há vaga com o id informado.")
 
             }
         } catch (SQLException e) {
-            e.printStackTrace()
-            print("Erro ao deletar a vaga no banco de dados.")
+            handleExceptionDB(e, "deletar")
         }
     }
+
+    static void setJobParameters(Connection connection, Jobs jobs) {
+        PreparedStatement insertJob = connection.prepareStatement(INSERT_JOB)
+        insertJob.setString(1, jobs.name)
+        insertJob.setString(2, jobs.description)
+        insertJob.setInt(3, jobs.idEmpresa)
+        insertJob.executeUpdate()
+        insertJob.close()
+    }
+
+    static void setUpdateJobParameters(Connection connection, Jobs jobs, int id) {
+        PreparedStatement atualizarVaga = connection.prepareStatement(UPDATE_CANDIDATE)
+        atualizarVaga.setString(1, jobs.name)
+        atualizarVaga.setString(2, jobs.description)
+        atualizarVaga.setInt(3, id)
+        atualizarVaga.executeUpdate();
+        atualizarVaga.close()
+    }
+
 }

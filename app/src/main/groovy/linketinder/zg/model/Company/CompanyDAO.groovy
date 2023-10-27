@@ -1,173 +1,163 @@
 package linketinder.zg.model.Company
 
-import linketinder.zg.db.ConnectionJDBC
-
-import linketinder.zg.util.ClearConsole
-
 import java.sql.*
 
+import linketinder.zg.db.ConnectionJDBC
+import static linketinder.zg.util.ClearConsole.*
+import static linketinder.zg.util.GetRowCount.getRowCount
+import static linketinder.zg.util.HandleExceptionDB.*
+import static linketinder.zg.util.GetSkillId.*
+import static linketinder.zg.util.PrepareStatement.*
+
+import static linketinder.zg.view.Companies.ListCompanies.*
+import static linketinder.zg.view.Companies.UpdateCompany.*
+
 class CompanyDAO {
+    private static final String INSERT_COMPANY = "INSERT INTO empresas (nome, email, cnpj, pais, estado, cep, descricao) VALUES (?, ?, ?, ?, ?, ?, ?)"
+    private static final String INSERT_SKILLS = "INSERT INTO competencias (nome) VALUES (?)"
+    private static final String VERIFY_SKILL = "SELECT id FROM competencias WHERE nome = ?"
+    private static final String INSERT_LINK_COMPANY_SKILL = "INSERT INTO competencias_empresas(empresa_id, competencia_id) VALUES (?, ?)"
+    private static final String UPDATE_COMPANY = "UPDATE empresas SET nome=?, email=?, cnpj=?, pais=?, estado=?, cep=?, descricao=? WHERE id=?"
+    private static final String DELETE_COMPANY = "DELETE FROM empresas WHERE id=?"
+    private static final String SEARCH_COMPANY_BY_ID = "SELECT * FROM empresas WHERE id=?"
+    private static final String SEARCH_ALL_COMPANIES = "SELECT c.id, c.nome, c.email, c.cnpj, STRING_AGG(co.nome, ', ') AS competencias FROM empresas c LEFT JOIN competencias_empresas cc ON c.id = cc.empresa_id LEFT JOIN competencias co ON cc.competencia_id = co.id GROUP BY c.id"
 
-    static void create(Company company) {
-        ArrayList<String> arrayOfSkills = company.skills.split(',')
+    static void list() {
+        try (Connection connection = ConnectionJDBC.connect()) {
+            PreparedStatement allCompanies = prepareAllStatement(connection, SEARCH_ALL_COMPANIES)
+            ResultSet resultSet = allCompanies.executeQuery();
+            allCompanies.close()
 
-        String INSERIR_EMPRESAS = "INSERT INTO empresas (nome, email, cnpj, pais, estado, cep, descricao) VALUES (?, ?, ?, ?, ?, ?, ?)"
-        String INSERIR_COMPETENCIAS = "INSERT INTO competencias (nome) VALUES (?)"
-        String VERIFICAR_COMPETENCIA = "SELECT id FROM competencias WHERE nome = ?"
-        String INSERIR_VINCULO_EMPRESA_COMPETENCIA = "INSERT INTO competencias_empresas(empresa_id, competencia_id) VALUES (?, ?)"
+            int companyCount = getRowCount(resultSet)
 
-        try {
-            Connection connection = ConnectionJDBC.conectar()
-            PreparedStatement salvarEmpresa = connection.prepareStatement(INSERIR_EMPRESAS, Statement.RETURN_GENERATED_KEYS)
-            PreparedStatement salvarCompetencia = connection.prepareStatement(INSERIR_COMPETENCIAS, Statement.RETURN_GENERATED_KEYS)
-            PreparedStatement verificarCompetencia = connection.prepareStatement(VERIFICAR_COMPETENCIA)
-            PreparedStatement vincularEmpresaCompetencia = connection.prepareStatement(INSERIR_VINCULO_EMPRESA_COMPETENCIA)
+            if (companyCount > 0) {
+                textListCompanies(resultSet)
+                ConnectionJDBC.disconnect(connection)
 
-            salvarEmpresa.setString(1, company.name)
-            salvarEmpresa.setString(2, company.corporateEmail)
-            salvarEmpresa.setString(3, company.cnpj)
-            salvarEmpresa.setString(4, company.country)
-            salvarEmpresa.setString(5, company.state)
-            salvarEmpresa.setString(6, company.cep)
-            salvarEmpresa.setString(7, company.companyDescription)
-
-            salvarEmpresa.executeUpdate()
-
-            ResultSet generatedKeys = salvarEmpresa.getGeneratedKeys()
-
-            if (generatedKeys.next()) {
-                int empresaId = generatedKeys.getInt(1)
-
-                if (!arrayOfSkills.isEmpty()) {
-                    for (String skill : arrayOfSkills) {
-                        verificarCompetencia.setString(1, skill.toLowerCase().trim())
-                        ResultSet resultSet = verificarCompetencia.executeQuery()
-
-                        int competenciaId
-                        if (resultSet.next()) {
-                            competenciaId = resultSet.getInt("id")
-                        } else {
-                            salvarCompetencia.setString(1, skill.toLowerCase().trim())
-                            salvarCompetencia.executeUpdate()
-
-                            ResultSet generatedCompetenciaKeys = salvarCompetencia.getGeneratedKeys()
-                            if (generatedCompetenciaKeys.next()) {
-                                competenciaId = generatedCompetenciaKeys.getInt(1)
-                            } else {
-                                throw new SQLException("Erro ao obter o ID da competência recém-adicionada.")
-                            }
-                        }
-
-                        vincularEmpresaCompetencia.setInt(1, empresaId)
-                        vincularEmpresaCompetencia.setInt(2, competenciaId)
-                        vincularEmpresaCompetencia.executeUpdate()
-                    }
-                }
-
-                generatedKeys.close()
+            } else {
+                println("Não existem empresas cadastradas");
             }
 
-            salvarEmpresa.close()
-            salvarCompetencia.close()
-            verificarCompetencia.close()
-            vincularEmpresaCompetencia.close()
-
-            ConnectionJDBC.desconectar(connection)
-
-            System.out.println("A empresa " + company.name + " foi inserido com sucesso.")
         } catch (Exception e) {
-            e.printStackTrace()
-            System.err.println("Erro ao salvar a empresa no banco de dados.")
-            System.exit(-42)
+            handleExceptionDB(e, "listar")
         }
     }
 
-    static void update(int id, Scanner input) {
-        input.nextLine()
+    static void create(Company company) {
+        try (Connection connection = ConnectionJDBC.connect()) {
+            PreparedStatement saveCompany = connection.prepareStatement(INSERT_COMPANY, Statement.RETURN_GENERATED_KEYS)
+            PreparedStatement saveSkill = connection.prepareStatement(INSERT_SKILLS, Statement.RETURN_GENERATED_KEYS)
+            PreparedStatement verifySkill = connection.prepareStatement(VERIFY_SKILL)
+            PreparedStatement linkCompanySkill = connection.prepareStatement(INSERT_LINK_COMPANY_SKILL)
 
-        print (" Digite o novo nome: ")
-        String name = input.nextLine()
+            setCompanyParameters(saveCompany, company)
 
-        print("Digite o novo email: ")
-        String corporateEmail = input.nextLine()
+            ResultSet generatedKeys = saveCompany.getGeneratedKeys()
+            if (generatedKeys.next()) {
+                int companyId = generatedKeys.getInt(1)
 
-        print ("Digite o novo CNPJ: ")
-        String cnpj = input.nextLine()
+                if (!company.skills.isEmpty()) {
+                    for (String skill : company.skills) {
+                        int skillId = getSkillId(verifySkill, saveSkill, skill);
 
-        print (" Digite o novo país: ")
-        String country = input.nextLine()
+                        linkSkillToCompany(linkCompanySkill, companyId, skillId)
+                    }
+                }
+                generatedKeys.close()
+            }
 
-        print " Digite o novo estado: "
-        String state = input.nextLine()
+            saveCompany.close()
+            saveSkill.close()
+            verifySkill.close()
+            linkCompanySkill.close()
 
-        print " Digite o novo CEP: "
-        String cep = input.nextLine()
+            ConnectionJDBC.disconnect(connection)
 
-        print " Digite a nova descrição: "
-        String companyDescription = input.nextLine()
+            System.out.println("A empresa " + company.name + " foi inserido com sucesso.")
+        } catch (Exception e) {
+            handleExceptionDB(e, "criar")
+        }
+    }
 
-        // Lógica para atualizar o banco de dados
-        String UPDATE_EMPRESA = "UPDATE empresas SET nome=?, email=?, cnpj=?, pais=?, estado=?, cep=?, descricao=? WHERE id=?"
+    static void update(int id) {
+        try (Connection connection = ConnectionJDBC.connect()) {
+            PreparedStatement companyById = prepareByIdStatement(id, connection, SEARCH_COMPANY_BY_ID)
+            ResultSet resultSet = companyById.executeQuery()
+            companyById.close()
 
-        try (Connection connection = ConnectionJDBC.conectar()
-             PreparedStatement atualizarEmpresa = connection.prepareStatement(UPDATE_EMPRESA)) {
+            int companyCount = getRowCount(resultSet)
 
-            atualizarEmpresa.setString(1, name)
-            atualizarEmpresa.setString(2, corporateEmail)
-            atualizarEmpresa.setString(3, cnpj)
-            atualizarEmpresa.setString(4, country)
-            atualizarEmpresa.setString(5, state)
-            atualizarEmpresa.setString(6, cep)
-            atualizarEmpresa.setString(7, companyDescription)
-            atualizarEmpresa.setInt(8, id)
-
-            atualizarEmpresa.executeUpdate();
-
-            ClearConsole.clearConsole()
-            print("Empresa com ID " + id + " atualizada com sucesso.")
-
+            if (companyCount > 0) {
+                clearConsole()
+                updateExistingCompany(id, connection)
+            } else {
+                clearConsole()
+                println("Não existe uma empresa com o id informado.")
+            }
         } catch (SQLException e) {
-            e.printStackTrace()
-            print("Erro ao atualizar Empresa no banco de dados.")
+            handleExceptionDB(e, "atualizar")
         }
     }
 
     static void delete(int id) {
-        String DELETE_EMPRESA = "DELETE FROM empresas WHERE id=?"
-        String BUSCAR_POR_ID = "SELECT * FROM empresas WHERE id=?"
+        try (Connection connection = ConnectionJDBC.connect()) {
+            PreparedStatement companyById = prepareByIdStatement(id, connection, SEARCH_COMPANY_BY_ID)
+            ResultSet resultSet = companyById.executeQuery();
+            companyById.close()
 
-        try {
-            Connection connection = ConnectionJDBC.conectar()
-            PreparedStatement company = connection.prepareStatement(
-                    BUSCAR_POR_ID,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY
-            );
-            company.setInt(1, id);
-            ResultSet res = company.executeQuery();
+            int companyCount = getRowCount(resultSet)
 
-            res.last();
-            int qtd = res.getRow();
-            res.beforeFirst();
-
-            if (qtd > 0) {
-                PreparedStatement deletarEmpresa = connection.prepareStatement(DELETE_EMPRESA)
-
-                deletarEmpresa.setInt(1, id)
-                deletarEmpresa.executeUpdate()
-
-                ClearConsole.clearConsole()
+            if (companyCount > 0) {
+                prepareDeleteStatement(id, connection, DELETE_COMPANY)
+                clearConsole()
                 print("Empresa com ID " + id + " deletado com sucesso.")
 
             } else {
-                ClearConsole.clearConsole()
+                clearConsole()
                 println("Não existe uma empresa com o id informado.")
-
             }
         } catch (SQLException e) {
-            e.printStackTrace()
-            print("Erro ao deletar empresa no banco de dados.")
+            handleExceptionDB(e, "deletar")
         }
     }
-    
+
+    private static void updateExistingCompany(int id, Connection connection) throws SQLException {
+        PreparedStatement updateCompany = connection.prepareStatement(UPDATE_COMPANY)
+        setUpdateCompanyParameters(updateCompany, id)
+        updateCompany.executeUpdate();
+
+        clearConsole()
+        print("Empresa com ID " + id + " atualizada com sucesso.")
+    }
+
+    private static void setCompanyParameters(PreparedStatement saveCompany, Company company) throws SQLException {
+        saveCompany.setString(1, company.name)
+        saveCompany.setString(2, company.corporateEmail)
+        saveCompany.setString(3, company.cnpj)
+        saveCompany.setString(4, company.country)
+        saveCompany.setString(5, company.state)
+        saveCompany.setString(6, company.cep)
+        saveCompany.setString(7, company.companyDescription)
+
+        saveCompany.executeUpdate()
+    }
+
+    private static void setUpdateCompanyParameters(PreparedStatement updateCompany, int id) throws SQLException {
+        Company updatedCompanyInputs = inputsUpdateCompany()
+
+        updateCompany.setString(1, updatedCompanyInputs.name)
+        updateCompany.setString(2, updatedCompanyInputs.corporateEmail)
+        updateCompany.setString(3, updatedCompanyInputs.cnpj)
+        updateCompany.setString(4, updatedCompanyInputs.country)
+        updateCompany.setString(5, updatedCompanyInputs.state)
+        updateCompany.setString(6, updatedCompanyInputs.cep)
+        updateCompany.setString(7, updatedCompanyInputs.companyDescription)
+        updateCompany.setInt(8, id)
+    }
+
+    private static void linkSkillToCompany(PreparedStatement linkCompanySkill, int companyId, int skillId) throws SQLException {
+        linkCompanySkill.setInt(1, companyId)
+        linkCompanySkill.setInt(2, skillId)
+        linkCompanySkill.executeUpdate()
+    }
 }

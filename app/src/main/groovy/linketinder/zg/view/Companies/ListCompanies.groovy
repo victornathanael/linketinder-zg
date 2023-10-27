@@ -1,6 +1,8 @@
 package linketinder.zg.view.Companies
 
 import linketinder.zg.db.ConnectionJDBC
+import linketinder.zg.model.Candidate.CandidateDAO
+import linketinder.zg.model.Company.CompanyDAO
 import linketinder.zg.util.ClearConsole
 
 import java.sql.Connection
@@ -9,43 +11,21 @@ import java.sql.ResultSet
 
 class ListCompanies {
     static void listCompanies() {
-        String BUSCAR_TODOS = "SELECT c.id, c.nome, c.email, c.cnpj, STRING_AGG(co.nome, ', ') AS competencias FROM empresas c LEFT JOIN competencias_empresas cc ON c.id = cc.empresa_id LEFT JOIN competencias co ON cc.competencia_id = co.id GROUP BY c.id"
+        CompanyDAO.list()
+    }
 
-        try {
-            Connection connection = ConnectionJDBC.conectar()
-            PreparedStatement empresas = connection.prepareStatement(
-                    BUSCAR_TODOS,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY
-            );
-            ResultSet res = empresas.executeQuery();
-
-            res.last();
-            int qtd = res.getRow();
-            res.beforeFirst();
-
-            if (qtd > 0) {
-                ClearConsole.clearConsole()
-                println("Listando empresas...");
-                println("-------------------------------");
-                while (res.next()) {
-                    println("ID: " + res.getInt("id"));
-                    println("Nome: " + res.getString("nome"));
-                    println("Email: " + res.getString("email"));
-                    println("CNPJ: " + res.getString("cnpj"));
-                    println("Competências: " + res.getString("competencias"))
-                    println("-------------------------------");
-                }
-                ConnectionJDBC.desconectar(connection)
-
-            } else {
-                println("Não existem empresas cadastradas");
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.err.println("Erro ao buscar todas as empresas.");
-            System.exit(-42);
+    static void textListCompanies(ResultSet resultSet) {
+        ClearConsole.clearConsole()
+        println("Listando empresas...");
+        println("-------------------------------");
+        while (resultSet.next()) {
+            println("ID: " + resultSet.getInt("id"));
+            println("Nome: " + resultSet.getString("nome"));
+            println("Email: " + resultSet.getString("email"));
+            println("CNPJ: " + resultSet.getString("cnpj"));
+            println("Competências: " + resultSet.getString("competencias"))
+            println("-------------------------------");
         }
     }
+
 }

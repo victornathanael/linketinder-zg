@@ -1,191 +1,164 @@
 package linketinder.zg.model.Candidate
 
-import linketinder.zg.db.ConnectionJDBC
-import linketinder.zg.util.ClearConsole
-
 import java.sql.*
+import linketinder.zg.db.ConnectionJDBC
+
+import static linketinder.zg.view.Candidates.UpdateCandidate.*
+import static linketinder.zg.view.Candidates.ListCandidates.*
+
+import static linketinder.zg.util.ClearConsole.*
+import static linketinder.zg.util.GetSkillId.getSkillId
+import static linketinder.zg.util.GetRowCount.*
+import static linketinder.zg.util.HandleExceptionDB.*
+import static linketinder.zg.util.PrepareStatement.*
 
 class CandidateDAO {
-    static void create(Candidate candidate) {
-        ArrayList<String> arrayOfSkills = candidate.skills.split(',')
+    private static final String INSERT_CANDIDATE = "INSERT INTO candidatos (nome, email, cpf, idade, estado, cep, descricao) VALUES (?, ?, ?, ?, ?, ?, ?)"
+    private static final String INSERT_SKILLS = "INSERT INTO competencias (nome) VALUES (?)"
+    private static final String VERIFY_SKILL = "SELECT id FROM competencias WHERE nome = ?"
+    private static final String INSERT_LINK_CANDIDATE_SKILL = "INSERT INTO competencias_candidatos(candidato_id, competencia_id) VALUES (?, ?)"
+    private static final String UPDATE_CANDIDATE = "UPDATE candidatos SET nome=?, email=?, cpf=?, idade=?, estado=?, cep=?, descricao=? WHERE id=?"
+    private static final String SEARCH_CANDIDATE_BY_ID = "SELECT * FROM candidatos WHERE id=?"
+    private static final String DELETE_CANDIDATE = "DELETE FROM candidatos WHERE id=?"
+    private static final String SEARCH_ALL_CANDIDATES = "SELECT c.id, c.nome, c.email, c.cpf, STRING_AGG(co.nome, ', ') AS competencias FROM candidatos c LEFT JOIN competencias_candidatos cc ON c.id = cc.candidato_id LEFT JOIN competencias co ON cc.competencia_id = co.id GROUP BY c.id"
 
-        String INSERIR_CANDIDATO = "INSERT INTO candidatos (nome, email, cpf, idade, estado, cep, descricao) VALUES (?, ?, ?, ?, ?, ?, ?)"
-        String INSERIR_COMPETENCIAS = "INSERT INTO competencias (nome) VALUES (?)"
-        String VERIFICAR_COMPETENCIA = "SELECT id FROM competencias WHERE nome = ?"
-        String INSERIR_VINCULO_CANDIDATO_COMPETENCIA = "INSERT INTO competencias_candidatos(candidato_id, competencia_id) VALUES (?, ?)"
+    static void list() {
+        try (Connection connection = ConnectionJDBC.connect()) {
+            PreparedStatement allCandidates = prepareAllStatement(connection, SEARCH_ALL_CANDIDATES)
+            ResultSet resultSet = allCandidates.executeQuery()
+            allCandidates.close()
 
-        try {
-            Connection connection = ConnectionJDBC.conectar()
-            PreparedStatement salvarCandidato = connection.prepareStatement(INSERIR_CANDIDATO, Statement.RETURN_GENERATED_KEYS)
-            PreparedStatement salvarCompetencia = connection.prepareStatement(INSERIR_COMPETENCIAS, Statement.RETURN_GENERATED_KEYS)
-            PreparedStatement verificarCompetencia = connection.prepareStatement(VERIFICAR_COMPETENCIA)
-            PreparedStatement vincularCandidatoCompetencia = connection.prepareStatement(INSERIR_VINCULO_CANDIDATO_COMPETENCIA)
+            int candidateCount = getRowCount(resultSet)
 
-            salvarCandidato.setString(1, candidate.name)
-            salvarCandidato.setString(2, candidate.email)
-            salvarCandidato.setString(3, candidate.cpf)
-            salvarCandidato.setInt(4, candidate.age)
-            salvarCandidato.setString(5, candidate.state)
-            salvarCandidato.setString(6, candidate.cep)
-            salvarCandidato.setString(7, candidate.personalDescription)
+            if (candidateCount > 0) {
+                textListCandidate(resultSet)
+                ConnectionJDBC.disconnect(connection)
 
-            salvarCandidato.executeUpdate()
-            ResultSet generatedKeys = salvarCandidato.getGeneratedKeys()
-
-            if (generatedKeys.next()) {
-                int candidatoId = generatedKeys.getInt(1)
-
-                if (!arrayOfSkills.isEmpty()) {
-                    for (String skill : arrayOfSkills) {
-                        verificarCompetencia.setString(1, skill.toLowerCase().trim())
-                        ResultSet resultSet = verificarCompetencia.executeQuery()
-
-                        int competenciaId
-                        if (resultSet.next()) {
-                            competenciaId = resultSet.getInt("id")
-                        } else {
-                            salvarCompetencia.setString(1, skill.toLowerCase().trim())
-                            salvarCompetencia.executeUpdate()
-
-                            ResultSet generatedCompetenciaKeys = salvarCompetencia.getGeneratedKeys()
-                            if (generatedCompetenciaKeys.next()) {
-                                competenciaId = generatedCompetenciaKeys.getInt(1)
-                            } else {
-                                throw new SQLException("Erro ao obter o ID da competência recém-adicionada.")
-                            }
-                        }
-
-                        vincularCandidatoCompetencia.setInt(1, candidatoId)
-                        vincularCandidatoCompetencia.setInt(2, competenciaId)
-                        vincularCandidatoCompetencia.executeUpdate()
-                    }
-                }
-
-                generatedKeys.close()
+            } else {
+                println("Não existem candidatos cadastrados")
             }
 
-            salvarCandidato.close()
-            salvarCompetencia.close()
-            verificarCompetencia.close()
-            vincularCandidatoCompetencia.close()
-
-            ConnectionJDBC.desconectar(connection)
-
-            System.out.println("O candidato " + candidate.name + " foi inserido com sucesso.")
         } catch (Exception e) {
-            e.printStackTrace()
-            System.err.println("Erro ao salvar candidato no banco de dados.")
-            System.exit(-42)
+            handleExceptionDB(e, "listar")
         }
     }
 
-    static void update(int id, Scanner input) {
+    static void create(Candidate candidate) {
+        try (Connection connection = ConnectionJDBC.connect()) {
+            PreparedStatement saveCandidate = connection.prepareStatement(INSERT_CANDIDATE, Statement.RETURN_GENERATED_KEYS)
+            PreparedStatement saveSkill = connection.prepareStatement(INSERT_SKILLS, Statement.RETURN_GENERATED_KEYS)
+            PreparedStatement verifySkill = connection.prepareStatement(VERIFY_SKILL)
+            PreparedStatement linkCandidateSkill = connection.prepareStatement(INSERT_LINK_CANDIDATE_SKILL)
 
-        String BUSCAR_POR_ID = "SELECT * FROM candidatos WHERE id=?"
-        try {
-            Connection connection = ConnectionJDBC.conectar()
-            PreparedStatement candidate = connection.prepareStatement(
-                    BUSCAR_POR_ID,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY
-            );
-            candidate.setInt(1, id);
-            ResultSet res = candidate.executeQuery();
+            setCandidateParameters(saveCandidate, candidate)
 
-            res.last();
-            int qtd = res.getRow();
-            res.beforeFirst();
+            ResultSet generatedKeys = saveCandidate.getGeneratedKeys()
+            if (generatedKeys.next()) {
+                int candidateId = generatedKeys.getInt(1)
 
-            if (qtd > 0) {
-                ClearConsole.clearConsole()
+                if (!candidate.skills.isEmpty()) {
+                    for (String skill : candidate.skills) {
+                        int skillId = getSkillId(verifySkill, saveSkill, skill);
 
-                input.nextLine()
+                        linkSkillToCandidate(linkCandidateSkill, candidateId, skillId)
+                    }
+                }
+                generatedKeys.close()
+            }
 
-                print("Digite o novo nome: ")
-                String novoNome = input.nextLine()
+            saveCandidate.close()
+            saveSkill.close()
+            verifySkill.close()
+            linkCandidateSkill.close()
 
-                print("Digite o novo email: ")
-                String novoEmail = input.nextLine()
+            ConnectionJDBC.disconnect(connection)
 
-                print("Digite o novo CPF: ")
-                String novoCpf = input.nextLine()
+            System.out.println("O candidato " + candidate.name + " foi inserido com sucesso.")
+        } catch (Exception e) {
+            handleExceptionDB(e, "criar")
+        }
+    }
 
-                print("Digite a nova idade: ")
-                int novaIdade = input.nextInt()
-                input.nextLine()
+    static void update(int id) {
+        try (Connection connection = ConnectionJDBC.connect()) {
+            PreparedStatement candidateById = prepareByIdStatement(id, connection, SEARCH_CANDIDATE_BY_ID);
+            ResultSet resultSet = candidateById.executeQuery();
+            candidateById.close()
 
-                print("Digite o novo estado: ")
-                String novoEstado = input.nextLine()
+            int candidateCount = getRowCount(resultSet)
 
-                print("Digite o novo CEP: ")
-                String novoCep = input.nextLine()
-
-                print("Digite a nova descrição: ")
-                String novaDescricao = input.nextLine()
-
-                // Lógica para atualizar o banco de dados
-                String UPDATE_CANDIDATO = "UPDATE candidatos SET nome=?, email=?, cpf=?, idade=?, estado=?, cep=?, descricao=? WHERE id=?"
-
-                PreparedStatement atualizarCandidato = connection.prepareStatement(UPDATE_CANDIDATO)
-
-                atualizarCandidato.setString(1, novoNome)
-                atualizarCandidato.setString(2, novoEmail)
-                atualizarCandidato.setString(3, novoCpf)
-                atualizarCandidato.setInt(4, novaIdade)
-                atualizarCandidato.setString(5, novoEstado)
-                atualizarCandidato.setString(6, novoCep)
-                atualizarCandidato.setString(7, novaDescricao)
-                atualizarCandidato.setInt(8, id)
-
-                atualizarCandidato.executeUpdate();
-
-                ClearConsole.clearConsole()
-                print("Candidato com ID " + id + " atualizado com sucesso.")
+            if (candidateCount > 0) {
+                clearConsole()
+                updateExistingCandidate(id, connection)
             } else {
-                ClearConsole.clearConsole()
+                clearConsole()
                 println("Não existe um candidato com o id informado.")
             }
         } catch (SQLException e) {
-            e.printStackTrace()
-            print("Erro ao atualizar candidato no banco de dados.")
+            handleExceptionDB(e, "atualizar")
         }
     }
 
     static void delete(int id) {
-        String BUSCAR_POR_ID = "SELECT * FROM candidatos WHERE id=?"
-        String DELETE_CANDIDATO = "DELETE FROM candidatos WHERE id=?"
+        try (Connection connection = ConnectionJDBC.connect()) {
+            PreparedStatement candidateById = prepareByIdStatement(id, connection, SEARCH_CANDIDATE_BY_ID);
+            ResultSet resultSet = candidateById.executeQuery();
+            candidateById.close()
 
-        try {
-            Connection connection = ConnectionJDBC.conectar()
-            PreparedStatement candidate = connection.prepareStatement(
-                    BUSCAR_POR_ID,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY
-            );
-            candidate.setInt(1, id);
-            ResultSet res = candidate.executeQuery();
+            int candidateCount = getRowCount(resultSet)
 
-            res.last();
-            int qtd = res.getRow();
-            res.beforeFirst();
-
-            if (qtd > 0) {
-                PreparedStatement deletarCandidato = connection.prepareStatement(DELETE_CANDIDATO)
-
-                deletarCandidato.setInt(1, id)
-                deletarCandidato.executeUpdate()
-
-                ClearConsole.clearConsole()
+            if (candidateCount > 0) {
+                prepareDeleteStatement(id, connection, DELETE_CANDIDATE)
+                clearConsole()
                 print("Candidato com ID " + id + " deletado com sucesso.")
 
             } else {
-                ClearConsole.clearConsole()
+                clearConsole()
                 println("Não existe um candidato com o id informado.")
-
             }
         } catch (SQLException e) {
-            e.printStackTrace()
-            print("Erro ao deletar candidato no banco de dados.")
+            handleExceptionDB(e, "deletar")
         }
     }
+
+    private static void setCandidateParameters(PreparedStatement saveCandidate, Candidate candidate) throws SQLException {
+        saveCandidate.setString(1, candidate.name)
+        saveCandidate.setString(2, candidate.email)
+        saveCandidate.setString(3, candidate.cpf)
+        saveCandidate.setInt(4, candidate.age)
+        saveCandidate.setString(5, candidate.state)
+        saveCandidate.setString(6, candidate.cep)
+        saveCandidate.setString(7, candidate.personalDescription)
+
+        saveCandidate.executeUpdate()
+    }
+
+    private static void updateExistingCandidate(int id, Connection connection) throws SQLException {
+        PreparedStatement updateCandidate = connection.prepareStatement(UPDATE_CANDIDATE)
+        setUpdateCandidateParameters(updateCandidate, id)
+        updateCandidate.executeUpdate()
+
+        clearConsole()
+        print("Candidato com ID " + id + " atualizado com sucesso.")
+    }
+
+    private static void setUpdateCandidateParameters(PreparedStatement updateCandidate, int id) throws SQLException {
+        Candidate updatedCandidateInputs = inputsUpdateCandidate()
+
+        updateCandidate.setString(1, updatedCandidateInputs.name)
+        updateCandidate.setString(2, updatedCandidateInputs.email)
+        updateCandidate.setString(3, updatedCandidateInputs.cpf)
+        updateCandidate.setInt(4, updatedCandidateInputs.age)
+        updateCandidate.setString(5, updatedCandidateInputs.state)
+        updateCandidate.setString(6, updatedCandidateInputs.cep)
+        updateCandidate.setString(7, updatedCandidateInputs.personalDescription)
+        updateCandidate.setInt(8, id)
+    }
+
+    private static void linkSkillToCandidate(PreparedStatement linkCandidateSkill, int candidateId, int skillId) throws SQLException {
+        linkCandidateSkill.setInt(1, candidateId)
+        linkCandidateSkill.setInt(2, skillId)
+        linkCandidateSkill.executeUpdate()
+    }
+
 }
