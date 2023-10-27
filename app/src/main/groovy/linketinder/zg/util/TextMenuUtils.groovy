@@ -1,7 +1,9 @@
 package linketinder.zg.util
 
-static void menuPrincipal() {
-    print("""
+class TextMenuUtils {
+
+    static void menuPrincipal() {
+        print("""
     ======== MENU ==========
     1 - Candidato
     2 - Empresa
@@ -10,10 +12,10 @@ static void menuPrincipal() {
     5 - Sair
 
 Escolha uma opção: """)
-}
+    }
 
-static void menuCandidate() {
-    print("""
+    static void menuCandidate() {
+        print("""
     ======== MENU CANDIDATO ==========
     1 - Listar candidatos
     2 - Cadastrar novo candidato
@@ -22,10 +24,10 @@ static void menuCandidate() {
     5 - Voltar ao menu principal
 
 Escolha uma opção: """)
-}
+    }
 
-static void menuCompany() {
-    print("""
+    static void menuCompany() {
+        print("""
     ======== MENU EMPRESA ==========
     1 - Listar empresas
     2 - Cadastrar nova empresa
@@ -34,10 +36,10 @@ static void menuCompany() {
     5 - Voltar ao menu principal
 
 Escolha uma opção: """)
-}
+    }
 
-static void menuJob() {
-    print("""
+    static void menuJob() {
+        print("""
     ======== MENU VAGA ==========
     1 - Listar vagas
     2 - Cadastrar nova vaga
@@ -46,10 +48,10 @@ static void menuJob() {
     5 - Voltar ao menu principal
 
 Escolha uma opção: """)
-}
+    }
 
-static void menuSkill() {
-    print("""
+    static void menuSkill() {
+        print("""
     ======== MENU COMPETÊNCIA ==========
     1 - Listar competências
     2 - Cadastrar nova competência
@@ -58,4 +60,5 @@ static void menuSkill() {
     5 - Voltar ao menu principal
 
 Escolha uma opção: """)
+    }
 }
