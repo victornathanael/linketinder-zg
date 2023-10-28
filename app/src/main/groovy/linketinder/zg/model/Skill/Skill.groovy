@@ -1,7 +1,7 @@
 package linketinder.zg.model.Skill
 
 class Skill {
-    String name
+    private String name
 
     Skill(String name) {
         this.name = name
@@ -13,6 +13,11 @@ class Skill {
 
     void setName(String name) {
         this.name = name
+    }
+
+    @Override
+    String toString() {
+        return name
     }
 }
 

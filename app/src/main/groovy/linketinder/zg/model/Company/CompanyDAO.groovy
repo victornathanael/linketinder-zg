@@ -26,7 +26,6 @@ class CompanyDAO {
         try (Connection connection = ConnectionJDBC.connect()) {
             PreparedStatement allCompanies = prepareAllStatement(connection, SEARCH_ALL_COMPANIES)
             ResultSet resultSet = allCompanies.executeQuery();
-            allCompanies.close()
 
             int companyCount = getRowCount(resultSet)
 
@@ -83,7 +82,6 @@ class CompanyDAO {
         try (Connection connection = ConnectionJDBC.connect()) {
             PreparedStatement companyById = prepareByIdStatement(id, connection, SEARCH_COMPANY_BY_ID)
             ResultSet resultSet = companyById.executeQuery()
-            companyById.close()
 
             int companyCount = getRowCount(resultSet)
 
@@ -103,7 +101,6 @@ class CompanyDAO {
         try (Connection connection = ConnectionJDBC.connect()) {
             PreparedStatement companyById = prepareByIdStatement(id, connection, SEARCH_COMPANY_BY_ID)
             ResultSet resultSet = companyById.executeQuery();
-            companyById.close()
 
             int companyCount = getRowCount(resultSet)
 

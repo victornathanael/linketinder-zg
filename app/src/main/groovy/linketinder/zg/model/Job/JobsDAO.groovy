@@ -25,7 +25,6 @@ class JobsDAO {
         try (Connection connection = ConnectionJDBC.connect()) {
             PreparedStatement allJobs = prepareAllStatement(connection, SEARCH_ALL_JOBS)
             ResultSet resultSet = allJobs.executeQuery()
-            allJobs.close()
 
             int jobCount = getRowCount(resultSet)
 
@@ -42,7 +41,7 @@ class JobsDAO {
         }
     }
 
-    static void create(Jobs jobs) {
+    static void create(Job jobs) {
         try (Connection connection = ConnectionJDBC.connect()) {
             PreparedStatement verifyCompany = connection.prepareStatement(SEARCH_COMPANY)
             verifyCompany.setInt(1, jobs.idEmpresa)
@@ -68,14 +67,13 @@ class JobsDAO {
         try (Connection connection = ConnectionJDBC.connect()) {
             PreparedStatement jobById = prepareByIdStatement(id, connection, SEARCH_JOB_BY_ID)
             ResultSet resultSet = jobById.executeQuery()
-            jobById.close()
 
             int jobCount = getRowCount(resultSet)
 
             if (jobCount > 0) {
                 clearConsole()
 
-                Jobs jobs = inputsUpdateJob(id)
+                Job jobs = inputsUpdateJob(id)
                 setUpdateJobParameters(connection, jobs, id)
 
                 clearConsole()
@@ -84,6 +82,7 @@ class JobsDAO {
                 clearConsole()
                 println("Não existe uma vaga com o id informado.")
             }
+            ConnectionJDBC.disconnect(connection)
         } catch (SQLException e) {
             handleExceptionDB(e, "atualizar")
         }
@@ -93,7 +92,6 @@ class JobsDAO {
         try (Connection connection = ConnectionJDBC.connect()) {
             PreparedStatement jobById = prepareByIdStatement(id, connection, SEARCH_JOB_BY_ID)
             ResultSet resultSet = jobById.executeQuery()
-            jobById.close()
 
             int jobCount = getRowCount(resultSet)
 
@@ -112,7 +110,7 @@ class JobsDAO {
         }
     }
 
-    static void setJobParameters(Connection connection, Jobs jobs) {
+    static void setJobParameters(Connection connection, Job jobs) {
         PreparedStatement insertJob = connection.prepareStatement(INSERT_JOB)
         insertJob.setString(1, jobs.name)
         insertJob.setString(2, jobs.description)
@@ -121,7 +119,7 @@ class JobsDAO {
         insertJob.close()
     }
 
-    static void setUpdateJobParameters(Connection connection, Jobs jobs, int id) {
+    static void setUpdateJobParameters(Connection connection, Job jobs, int id) {
         PreparedStatement atualizarVaga = connection.prepareStatement(UPDATE_CANDIDATE)
         atualizarVaga.setString(1, jobs.name)
         atualizarVaga.setString(2, jobs.description)

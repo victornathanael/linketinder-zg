@@ -26,7 +26,6 @@ class CandidateDAO {
         try (Connection connection = ConnectionJDBC.connect()) {
             PreparedStatement allCandidates = prepareAllStatement(connection, SEARCH_ALL_CANDIDATES)
             ResultSet resultSet = allCandidates.executeQuery()
-            allCandidates.close()
 
             int candidateCount = getRowCount(resultSet)
 
@@ -83,7 +82,6 @@ class CandidateDAO {
         try (Connection connection = ConnectionJDBC.connect()) {
             PreparedStatement candidateById = prepareByIdStatement(id, connection, SEARCH_CANDIDATE_BY_ID);
             ResultSet resultSet = candidateById.executeQuery();
-            candidateById.close()
 
             int candidateCount = getRowCount(resultSet)
 
@@ -103,7 +101,6 @@ class CandidateDAO {
         try (Connection connection = ConnectionJDBC.connect()) {
             PreparedStatement candidateById = prepareByIdStatement(id, connection, SEARCH_CANDIDATE_BY_ID);
             ResultSet resultSet = candidateById.executeQuery();
-            candidateById.close()
 
             int candidateCount = getRowCount(resultSet)
 

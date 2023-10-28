@@ -1,6 +1,8 @@
 package linketinder.zg.view.Skills
 
+import linketinder.zg.model.Skill.Skill
 import linketinder.zg.model.Skill.SkillDAO
+import linketinder.zg.util.InputUtils
 
 class UpdateSkill {
     static void updateSkill() {
@@ -10,4 +12,11 @@ class UpdateSkill {
         int id = input.nextInt();
         SkillDAO.update(id, input)
     }
+
+    static Skill inputsUpdateSkill() {
+        String name = InputUtils.getStringInput("Digite o novo nome: ")
+        Skill skill = new Skill(name)
+        return skill
+    }
+
 }

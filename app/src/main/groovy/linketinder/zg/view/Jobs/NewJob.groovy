@@ -1,7 +1,7 @@
 package linketinder.zg.view.Jobs
 
 
-import linketinder.zg.model.Job.Jobs
+import linketinder.zg.model.Job.Job
 import linketinder.zg.model.Job.JobsDAO
 import linketinder.zg.view.Companies.ListCompanies
 
@@ -21,7 +21,7 @@ class NewJob {
         int idEmpresa = input.nextInt()
 
 
-        Jobs jobs = new Jobs(name, description, idEmpresa)
+        Job jobs = new Job(name, description, idEmpresa)
         JobsDAO.create(jobs)
     }
 }
