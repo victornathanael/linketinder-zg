@@ -2,7 +2,6 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-
 }
 
 body {
@@ -53,7 +52,7 @@ h4 {
 
 a {
     text-decoration: none;
-    background-color: #EFEFEF;
+    background-color: rgb(233, 224, 246);
     color: #333;
     font-size: 18px;
     padding: 10px 20px;
