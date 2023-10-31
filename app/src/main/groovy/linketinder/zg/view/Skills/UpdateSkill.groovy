@@ -10,7 +10,7 @@ class UpdateSkill {
         Scanner input = new Scanner(System.in)
         print("Informe o id da competência : ");
         int id = input.nextInt();
-        SkillDAO.update(id, input)
+        SkillDAO.update(id)
     }
 
     static Skill inputsUpdateSkill() {

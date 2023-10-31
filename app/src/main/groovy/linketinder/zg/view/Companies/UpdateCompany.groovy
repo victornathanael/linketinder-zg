@@ -11,7 +11,7 @@ class UpdateCompany {
         Scanner input = new Scanner(System.in)
         print("Informe o id da empresa : ");
         int id = input.nextInt();
-        CompanyDAO.update(id, input)
+        CompanyDAO.update(id)
     }
 
     static Company inputsUpdateCompany() {

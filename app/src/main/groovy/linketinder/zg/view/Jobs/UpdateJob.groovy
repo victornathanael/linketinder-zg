@@ -10,7 +10,7 @@ class UpdateJob {
         Scanner input = new Scanner(System.in)
         print("Informe o id da vaga: ");
         int id = input.nextInt();
-        JobsDAO.update(id, input)
+        JobsDAO.update(id)
     }
 
     static Job inputsUpdateJob(int id) {
