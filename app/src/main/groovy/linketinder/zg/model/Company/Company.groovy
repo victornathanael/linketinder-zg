@@ -3,14 +3,14 @@ package linketinder.zg.model.Company
 import linketinder.zg.model.Skill.Skill
 
 class Company {
-    String name
-    String corporateEmail
-    String cnpj
-    String country
-    String state
-    String cep
-    String companyDescription
-    List<Skill> skills
+    private String name
+    private String corporateEmail
+    private String cnpj
+    private String country
+    private String state
+    private String cep
+    private String companyDescription
+    private List<Skill> skills
 
     Company(String name, String corporateEmail, String cnpj, String country, String state, String cep, String companyDescription, List<Skill> skills) {
         this.name = name

@@ -1,6 +1,8 @@
 package linketinder.zg.model.Job
 
-import linketinder.zg.db.ConnectionJDBC
+import linketinder.zg.db.factory.ConnectionProviderFactory
+import linketinder.zg.db.factory.DatabaseType
+import linketinder.zg.db.factory.IConnectionProvider
 
 import static linketinder.zg.util.ClearConsole.*
 import static linketinder.zg.view.Jobs.ListJobs.*
@@ -9,6 +11,7 @@ import static linketinder.zg.view.Jobs.UpdateJob.*
 import static linketinder.zg.util.HandleExceptionDB.*
 import static linketinder.zg.util.PrepareStatement.*
 import static linketinder.zg.util.GetRowCount.*
+import static linketinder.zg.util.JobsParameters.*
 
 
 import java.sql.*
@@ -16,13 +19,15 @@ import java.sql.*
 class JobsDAO {
     public static final String SEARCH_COMPANY = "SELECT id FROM empresas WHERE id = ?"
     public static final String INSERT_JOB = "INSERT INTO vagas (nome, descricao, empresa_id) VALUES (?, ?, ?)"
-    public static final String UPDATE_CANDIDATE = "UPDATE vagas SET nome=?, descricao=? WHERE id=?"
+    public static final String UPDATE_JOB = "UPDATE vagas SET nome=?, descricao=? WHERE id=?"
     public static final String SEARCH_JOB_BY_ID = "SELECT * FROM vagas WHERE id=?"
     public static final String SEARCH_ALL_JOBS = "SELECT v.id, v.nome, v.descricao, e.nome AS empresa_nome FROM vagas v JOIN empresas e ON v.empresa_id = e.id"
     public static final String DELETE_JOB = "DELETE FROM vagas WHERE id=?"
+    private static final IConnectionProvider connectionProvider = ConnectionProviderFactory.createConnectionProvider(DatabaseType.POSTGRE)
+
 
     static void list() {
-        try (Connection connection = ConnectionJDBC.connect()) {
+        try (Connection connection = connectionProvider.connect()) {
             PreparedStatement allJobs = prepareAllStatement(connection, SEARCH_ALL_JOBS)
             ResultSet resultSet = allJobs.executeQuery()
 
@@ -30,7 +35,7 @@ class JobsDAO {
 
             if (jobCount > 0) {
                 textListJob(resultSet)
-                ConnectionJDBC.disconnect(connection)
+                connectionProvider.disconnect()
 
             } else {
                 println("Não existem vagas cadastradas")
@@ -42,13 +47,13 @@ class JobsDAO {
     }
 
     static void create(Job jobs) {
-        try (Connection connection = ConnectionJDBC.connect()) {
+        try (Connection connection = connectionProvider.connect()) {
             PreparedStatement verifyCompany = connection.prepareStatement(SEARCH_COMPANY)
             verifyCompany.setInt(1, jobs.idEmpresa)
             ResultSet resultSet = verifyCompany.executeQuery()
 
             if (resultSet.next()) {
-                setJobParameters(connection, jobs)
+                setJobParameters(connection, jobs, INSERT_JOB)
 
                 System.out.println("A vaga " + jobs.name + " foi inserida com sucesso.")
             } else {
@@ -56,7 +61,7 @@ class JobsDAO {
             }
 
             verifyCompany.close();
-            ConnectionJDBC.disconnect(connection);
+            connectionProvider.disconnect();
 
         } catch (Exception e) {
             handleExceptionDB(e, "criar")
@@ -64,7 +69,7 @@ class JobsDAO {
     }
 
     static void update(int id) {
-        try (Connection connection = ConnectionJDBC.connect()) {
+        try (Connection connection = connectionProvider.connect()) {
             PreparedStatement jobById = prepareByIdStatement(id, connection, SEARCH_JOB_BY_ID)
             ResultSet resultSet = jobById.executeQuery()
 
@@ -74,7 +79,7 @@ class JobsDAO {
                 clearConsole()
 
                 Job jobs = inputsUpdateJob(id)
-                setUpdateJobParameters(connection, jobs, id)
+                setUpdateJobParameters(connection, jobs, id, UPDATE_JOB)
 
                 clearConsole()
                 print("Vaga com ID " + id + " atualizado com sucesso.")
@@ -82,14 +87,14 @@ class JobsDAO {
                 clearConsole()
                 println("Não existe uma vaga com o id informado.")
             }
-            ConnectionJDBC.disconnect(connection)
+            connectionProvider.disconnect()
         } catch (SQLException e) {
             handleExceptionDB(e, "atualizar")
         }
     }
 
     static void delete(int id) {
-        try (Connection connection = ConnectionJDBC.connect()) {
+        try (Connection connection = connectionProvider.connect()) {
             PreparedStatement jobById = prepareByIdStatement(id, connection, SEARCH_JOB_BY_ID)
             ResultSet resultSet = jobById.executeQuery()
 
@@ -110,22 +115,5 @@ class JobsDAO {
         }
     }
 
-    static void setJobParameters(Connection connection, Job jobs) {
-        PreparedStatement insertJob = connection.prepareStatement(INSERT_JOB)
-        insertJob.setString(1, jobs.name)
-        insertJob.setString(2, jobs.description)
-        insertJob.setInt(3, jobs.idEmpresa)
-        insertJob.executeUpdate()
-        insertJob.close()
-    }
-
-    static void setUpdateJobParameters(Connection connection, Job jobs, int id) {
-        PreparedStatement atualizarVaga = connection.prepareStatement(UPDATE_CANDIDATE)
-        atualizarVaga.setString(1, jobs.name)
-        atualizarVaga.setString(2, jobs.description)
-        atualizarVaga.setInt(3, id)
-        atualizarVaga.executeUpdate();
-        atualizarVaga.close()
-    }
 
 }

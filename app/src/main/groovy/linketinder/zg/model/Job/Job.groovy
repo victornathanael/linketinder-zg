@@ -1,9 +1,9 @@
 package linketinder.zg.model.Job
 
 class Job {
-    String name
-    String description
-    int idEmpresa
+    private String name
+    private String description
+    private int idEmpresa
 
     Job(String name, String description, int idEmpresa) {
         this.name = name
