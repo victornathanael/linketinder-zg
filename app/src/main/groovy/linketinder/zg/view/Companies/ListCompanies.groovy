@@ -1,12 +1,9 @@
 package linketinder.zg.view.Companies
 
-import linketinder.zg.db.ConnectionJDBC
-import linketinder.zg.model.Candidate.CandidateDAO
+
 import linketinder.zg.model.Company.CompanyDAO
 import linketinder.zg.util.ClearConsole
 
-import java.sql.Connection
-import java.sql.PreparedStatement
 import java.sql.ResultSet
 
 class ListCompanies {

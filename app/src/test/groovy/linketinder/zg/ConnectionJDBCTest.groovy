@@ -1,6 +1,6 @@
 package linketinder.zg
 
-import linketinder.zg.db.ConnectionJDBC
+import linketinder.zg.db.PostgreSQLConnection
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test;
@@ -14,17 +14,17 @@ class ConnectionJDBCTest {
 
     @BeforeAll
     static void before() {
-        connection = ConnectionJDBC.connect()
+        connection = PostgreSQLConnection.connect()
     }
 
     @AfterAll
     static void after() {
-        ConnectionJDBC.disconnect(connection)
+        PostgreSQLConnection.disconnect(connection)
     }
 
     @Test
     void testShouldCloseDB() {
-        ConnectionJDBC.disconnect(connection)
+        PostgreSQLConnection.disconnect(connection)
         try {
             assertTrue(connection.isClosed(), "A conexão deve estar fechada após chamar desconectar")
         } catch (Exception ignored) {
