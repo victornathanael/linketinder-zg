@@ -5,12 +5,11 @@ import java.sql.ResultSet
 import java.sql.SQLException
 
 import static linketinder.zg.util.GetGenerateId.getGenerateId
-import static linketinder.zg.util.VerifyIfSkillExist.verifyIfSkillExist
 
 static int getSkillId(PreparedStatement verifySkill, PreparedStatement saveSkill, String skill) throws SQLException {
     int skillId;
-
-    ResultSet resultSet = verifyIfSkillExist(verifySkill, skill)
+    verifySkill.setString(1, skill.toLowerCase().trim())
+    ResultSet resultSet = verifySkill.executeQuery()
 
     if (resultSet.next()) {
         skillId = resultSet.getInt("id")

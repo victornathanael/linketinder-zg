@@ -5,8 +5,6 @@ import linketinder.zg.model.Candidate.Candidate
 import java.sql.PreparedStatement
 import java.sql.SQLException
 
-import static linketinder.zg.view.Candidates.UpdateCandidate.inputsUpdateCandidate
-
 class CandidateParameters {
     static void setCandidateParameters(PreparedStatement saveCandidate, Candidate candidate) throws SQLException {
         saveCandidate.setString(1, candidate.name)
@@ -20,17 +18,17 @@ class CandidateParameters {
         saveCandidate.executeUpdate()
     }
 
-    static void setUpdateCandidateParameters(PreparedStatement updateCandidate, int id) throws SQLException {
-        Candidate updatedCandidateInputs = inputsUpdateCandidate()
-
-        updateCandidate.setString(1, updatedCandidateInputs.name)
-        updateCandidate.setString(2, updatedCandidateInputs.email)
-        updateCandidate.setString(3, updatedCandidateInputs.cpf)
-        updateCandidate.setInt(4, updatedCandidateInputs.age)
-        updateCandidate.setString(5, updatedCandidateInputs.state)
-        updateCandidate.setString(6, updatedCandidateInputs.cep)
-        updateCandidate.setString(7, updatedCandidateInputs.personalDescription)
+    static void setUpdateCandidateParameters(PreparedStatement updateCandidate, int id, Candidate candidate) throws SQLException {
+        updateCandidate.setString(1, candidate.name)
+        updateCandidate.setString(2, candidate.email)
+        updateCandidate.setString(3, candidate.cpf)
+        updateCandidate.setInt(4, candidate.age)
+        updateCandidate.setString(5, candidate.state)
+        updateCandidate.setString(6, candidate.cep)
+        updateCandidate.setString(7, candidate.personalDescription)
         updateCandidate.setInt(8, id)
+
+        updateCandidate.executeUpdate()
     }
 
 }
