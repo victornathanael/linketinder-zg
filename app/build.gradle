@@ -12,6 +12,7 @@ plugins {
 
     // Apply the application plugin to add support for building a CLI application in Java.
     id 'application'
+    id 'war'
 }
 
 repositories {
@@ -23,6 +24,9 @@ dependencies {
     // Use the latest Groovy version for building this library
     implementation 'org.codehaus.groovy:groovy-all:3.0.13'
     implementation 'org.postgresql:postgresql:42.5.3'
+    implementation 'com.google.code.gson:gson:2.8.9'
+
+    compileOnly 'javax.servlet:javax.servlet-api:3.1.0'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
     testImplementation 'org.mockito:mockito-core:5.0.0'
@@ -40,6 +44,7 @@ run {
 test {
     useJUnitPlatform()
 }
+
 
 tasks.withType(JavaExec).configureEach {
     systemProperty 'file.encoding', 'UTF-8'

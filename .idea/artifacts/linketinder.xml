@@ -1,0 +1,13 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="linketinder">
+    <output-path>$PROJECT_DIR$/out/artifacts/linketinder</output-path>
+    <root id="archive" name="linketinder.war">
+      <element id="javaee-facet-resources" facet="linketinder-zg.app.main/web/Web" />
+      <element id="directory" name="WEB-INF">
+        <element id="directory" name="classes">
+          <element id="module-output" name="linketinder-zg.app.main" />
+        </element>
+      </element>
+    </root>
+  </artifact>
+</component>
