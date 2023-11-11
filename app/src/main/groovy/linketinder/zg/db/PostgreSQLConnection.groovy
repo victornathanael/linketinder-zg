@@ -8,7 +8,7 @@ class PostgreSQLConnection implements IConnectionProvider {
     private static final String url = "jdbc:postgresql://localhost:5432/linketinder"
     private static final String user = "geek"
     private static final String password = "university"
-    private static Connection connection;
+    public static Connection connection
 
     @Override
     Connection connect() {
@@ -26,13 +26,15 @@ class PostgreSQLConnection implements IConnectionProvider {
 
     @Override
     void disconnect() {
-        try {
-            connection.close()
-        } catch (SQLException e) {
-            e.printStackTrace()
-            throw new RuntimeException("Erro ao fechar a conexão com o banco de dados", e)
-        } finally {
-            connection = null
+        if (connection !== null) {
+            try {
+                connection.close()
+            } catch (SQLException e) {
+                e.printStackTrace()
+                throw new RuntimeException("Erro ao fechar a conexão com o banco de dados", e)
+            } finally {
+                connection = null
+            }
         }
     }
 }
