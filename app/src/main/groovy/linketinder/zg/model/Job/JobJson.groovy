@@ -1,14 +1,18 @@
 package linketinder.zg.model.Job
 
-class Job {
+class JobJson {
+    private int id
     private String name
     private String description
     private int idCompany
+    private String nameCompany
 
-    Job(String name, String description, int idCompany) {
-        this.name = name
-        this.description = description
-        this.idCompany = idCompany
+    int getId() {
+        return id
+    }
+
+    void setId(int id) {
+        this.id = id
     }
 
     String getName() {
@@ -34,6 +38,12 @@ class Job {
     void setIdCompany(int idCompany) {
         this.idCompany = idCompany
     }
+
+    String getNameCompany() {
+        return nameCompany
+    }
+
+    void setNameCompany(String nameCompany) {
+        this.nameCompany = nameCompany
+    }
 }
-
-

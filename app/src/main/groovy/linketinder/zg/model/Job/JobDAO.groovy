@@ -4,28 +4,29 @@ import linketinder.zg.db.factory.ConnectionProviderFactory
 import linketinder.zg.db.factory.DatabaseType
 import linketinder.zg.db.factory.IConnectionProvider
 
-import static linketinder.zg.util.ClearConsole.*
-import static linketinder.zg.view.Jobs.ListJobs.*
-import static linketinder.zg.view.Jobs.UpdateJob.*
+import java.sql.Connection
+import java.sql.PreparedStatement
+import java.sql.ResultSet
+import java.sql.SQLException
 
-import static linketinder.zg.util.HandleExceptionDB.*
+import static linketinder.zg.util.GetRowCount.getRowCount
+import static linketinder.zg.util.HandleExceptionDB.handleExceptionDB
+import static linketinder.zg.util.JobsParameters.setJobParameters
+import static linketinder.zg.util.JobsParameters.setUpdateJobParameters
 import static linketinder.zg.util.PrepareStatement.*
-import static linketinder.zg.util.GetRowCount.*
-import static linketinder.zg.util.JobsParameters.*
 
-
-import java.sql.*
-
-class JobsDAO {
+class JobDAO {
     public static final String SEARCH_COMPANY = "SELECT id FROM empresas WHERE id = ?"
     public static final String INSERT_JOB = "INSERT INTO vagas (nome, descricao, empresa_id) VALUES (?, ?, ?)"
-    public static final String UPDATE_JOB = "UPDATE vagas SET nome=?, descricao=? WHERE id=?"
+    public static final String UPDATE_JOB = "UPDATE vagas SET nome=?, descricao=?, empresa_id=? WHERE id=?"
     public static final String SEARCH_JOB_BY_ID = "SELECT * FROM vagas WHERE id=?"
-    public static final String SEARCH_ALL_JOBS = "SELECT v.id, v.nome, v.descricao, e.nome AS empresa_nome FROM vagas v JOIN empresas e ON v.empresa_id = e.id"
+    public static final String SEARCH_ALL_JOBS = "SELECT v.id, v.nome, v.descricao, v.empresa_id, e.nome AS empresa_nome FROM vagas v JOIN empresas e ON v.empresa_id = e.id"
     public static final String DELETE_JOB = "DELETE FROM vagas WHERE id=?"
     private static final IConnectionProvider connectionProvider = ConnectionProviderFactory.createConnectionProvider(DatabaseType.POSTGRE)
 
-    static void list() {
+    static List<JobJson> list() {
+        List<JobJson> jobJsonArrayList = new ArrayList<>()
+
         try (Connection connection = connectionProvider.connect()) {
             PreparedStatement allJobs = prepareAllStatement(connection, SEARCH_ALL_JOBS)
             ResultSet resultSet = allJobs.executeQuery()
@@ -33,62 +34,80 @@ class JobsDAO {
             int jobCount = getRowCount(resultSet)
 
             if (jobCount > 0) {
-                textListJob(resultSet)
-                connectionProvider.disconnect()
+                while (resultSet.next()) {
+                    JobJson jobJson = new JobJson()
+                    jobJson.setId(resultSet.getInt("id"))
+                    jobJson.setName(resultSet.getString("nome"))
+                    jobJson.setDescription(resultSet.getString("descricao"))
+                    jobJson.setIdCompany(resultSet.getInt("empresa_id"))
+                    jobJson.setNameCompany(resultSet.getString("empresa_nome"))
 
+                    jobJsonArrayList.add(jobJson)
+                }
             } else {
-                println("Não existem vagas cadastradas")
+                throw new Error("Não existem vagas cadastradas")
             }
 
         } catch (Exception e) {
             handleExceptionDB(e, "listar")
+        } finally {
+            connectionProvider.disconnect()
         }
+
+        return jobJsonArrayList
     }
 
-    static void create(Job jobs) {
+    static void create(Job job) {
         try (Connection connection = connectionProvider.connect()) {
+            PreparedStatement insertJob = connection.prepareStatement(INSERT_JOB)
             PreparedStatement verifyCompany = connection.prepareStatement(SEARCH_COMPANY)
-            verifyCompany.setInt(1, jobs.idEmpresa)
+            verifyCompany.setInt(1, job.idCompany)
             ResultSet resultSet = verifyCompany.executeQuery()
 
             if (resultSet.next()) {
-                setJobParameters(connection, jobs, INSERT_JOB)
+                setJobParameters(insertJob, job)
 
-                System.out.println("A vaga " + jobs.name + " foi inserida com sucesso.")
+                println("A vaga " + job.name + " foi inserida com sucesso.")
             } else {
-                System.err.println("A empresa com o ID " + jobs.idEmpresa + " não existe.")
+                throw new Error("A empresa com o ID " + job.idCompany + " não existe.")
             }
 
-            verifyCompany.close();
-            connectionProvider.disconnect();
-
+            verifyCompany.close()
         } catch (Exception e) {
             handleExceptionDB(e, "criar")
+        } finally {
+            connectionProvider.disconnect()
         }
     }
 
-    static void update(int id) {
+    static void update(int id, Job job) {
         try (Connection connection = connectionProvider.connect()) {
+            PreparedStatement updateJob = connection.prepareStatement(UPDATE_JOB)
             PreparedStatement jobById = prepareByIdStatement(id, connection, SEARCH_JOB_BY_ID)
+            PreparedStatement verifyCompany = connection.prepareStatement(SEARCH_COMPANY)
+
+            verifyCompany.setInt(1, job.idCompany)
+            ResultSet verifyResult = verifyCompany.executeQuery()
+
+            if(!verifyResult.next()) {
+                throw new Error("A empresa com o ID " + job.idCompany + " não existe.")
+            }
+
             ResultSet resultSet = jobById.executeQuery()
 
             int jobCount = getRowCount(resultSet)
 
             if (jobCount > 0) {
-                clearConsole()
-
-                Job jobs = inputsUpdateJob(id)
-                setUpdateJobParameters(connection, jobs, id, UPDATE_JOB)
-
-                clearConsole()
+                setUpdateJobParameters(updateJob, job, id)
                 print("Vaga com ID " + id + " atualizado com sucesso.")
             } else {
-                clearConsole()
-                println("Não existe uma vaga com o id informado.")
+                throw new Error("Não existe uma vaga com o id informado.")
             }
-            connectionProvider.disconnect()
+            verifyCompany.close()
         } catch (SQLException e) {
             handleExceptionDB(e, "atualizar")
+        } finally {
+            connectionProvider.disconnect()
         }
     }
 
@@ -101,16 +120,14 @@ class JobsDAO {
 
             if (jobCount > 0) {
                 prepareDeleteStatement(id, connection, DELETE_JOB)
-                clearConsole()
                 print("A vaga com ID " + id + " deletado com sucesso.")
-
             } else {
-                clearConsole()
-                println("Não há vaga com o id informado.")
-
+                throw new Error("Não há vaga com o id informado.")
             }
         } catch (SQLException e) {
             handleExceptionDB(e, "deletar")
+        } finally {
+            connectionProvider.disconnect()
         }
     }
 

@@ -4,18 +4,16 @@ import linketinder.zg.db.factory.ConnectionProviderFactory
 import linketinder.zg.db.factory.DatabaseType
 import linketinder.zg.db.factory.IConnectionProvider
 
-import java.sql.*
+import java.sql.Connection
+import java.sql.PreparedStatement
+import java.sql.ResultSet
+import java.sql.SQLException
 
-
-import static linketinder.zg.util.ClearConsole.*
-import static linketinder.zg.util.HandleExceptionDB.*
+import static linketinder.zg.util.GetRowCount.getRowCount
+import static linketinder.zg.util.HandleExceptionDB.handleExceptionDB
 import static linketinder.zg.util.PrepareStatement.*
-import static linketinder.zg.util.GetRowCount.*
-import static linketinder.zg.util.SkillParameters.*
-
-import static linketinder.zg.view.Skills.ListSkills.*
-import static linketinder.zg.view.Skills.UpdateSkill.*
-
+import static linketinder.zg.util.SkillParameters.setSkillParameters
+import static linketinder.zg.util.SkillParameters.setSkillUpdateParameters
 
 class SkillDAO {
     public static final String SEARCH_ID_SKILL = "SELECT id FROM competencias WHERE nome = ?"
@@ -28,7 +26,9 @@ class SkillDAO {
     private static final IConnectionProvider connectionProvider = ConnectionProviderFactory.createConnectionProvider(DatabaseType.POSTGRE)
 
 
-    static void list() {
+    static List<SkillJson> list() {
+        List<SkillJson> skillJsonArrayList = new ArrayList<>()
+
         try (Connection connection = connectionProvider.connect()) {
             PreparedStatement allSkills = prepareAllStatement(connection, SEARCH_ALL_SKILLS)
             ResultSet resultSet = allSkills.executeQuery()
@@ -36,8 +36,13 @@ class SkillDAO {
             int skillCount = getRowCount(resultSet)
 
             if (skillCount > 0) {
-                textListSkill(resultSet)
-                connectionProvider.disconnect()
+                while (resultSet.next()) {
+                    SkillJson skillJson = new SkillJson()
+                    skillJson.setId(resultSet.getInt("id"))
+                    skillJson.setName(resultSet.getString("nome"))
+
+                    skillJsonArrayList.add(skillJson)
+                }
 
             } else {
                 println("Não existem compêtencias cadastradas")
@@ -45,43 +50,47 @@ class SkillDAO {
 
         } catch (Exception e) {
             handleExceptionDB(e, "listar")
+        } finally {
+            connectionProvider.disconnect()
         }
+
+        return skillJsonArrayList
     }
 
     static void create(Skill skill) {
         try (Connection connection = connectionProvider.connect()) {
+            PreparedStatement insertSkill = connection.prepareStatement(INSERT_SKILL)
             PreparedStatement skillById = connection.prepareStatement(SEARCH_ID_SKILL)
+
             skillById.setString(1, skill.name)
             ResultSet resultSet = skillById.executeQuery()
 
             if (!resultSet.next()) {
-                setSkillParameters(connection, skill, INSERT_SKILL)
-
-                System.out.println("A competência " + skill.name + " foi inserida com sucesso.")
+                setSkillParameters(insertSkill, skill)
+                println("A competência " + skill.name + " foi inserida com sucesso.")
             } else {
-                System.err.println("A competência " + skill.name + " já existe.")
+                throw new Error("A competência " + skill.name + " já existe.")
             }
 
             skillById.close()
-            connectionProvider.disconnect()
 
         } catch (Exception e) {
             handleExceptionDB(e, "criar")
+        } finally {
+            connectionProvider.disconnect()
         }
     }
 
-    static void update(int id) {
+    static void update(int id, Skill skill) {
         try (Connection connection = connectionProvider.connect()) {
+            PreparedStatement updateSkill = connection.prepareStatement(UPDATE_SKILL)
             PreparedStatement skillById = prepareByIdStatement(id, connection, SEARCH_SKILL_BY_ID)
             ResultSet resultSet = skillById.executeQuery()
 
             int skillCount = getRowCount(resultSet)
 
             if (skillCount > 0) {
-                clearConsole()
-
-                Skill skill = inputsUpdateSkill()
-                setSkillUpdateParameters(connection, skill, id, UPDATE_SKILL)
+                setSkillUpdateParameters(updateSkill, skill, id)
 
                 clearConsole()
                 System.out.println("Competência com ID " + id + " atualizada com sucesso.")
@@ -89,9 +98,10 @@ class SkillDAO {
                 clearConsole()
                 System.out.println("Não existe uma competência com o ID informado.")
             }
-            connectionProvider.disconnect()
         } catch (SQLException e) {
             handleExceptionDB(e, "atualizar")
+        } finally {
+            connectionProvider.disconnect()
         }
     }
 
@@ -104,16 +114,16 @@ class SkillDAO {
 
             if (skillCount > 0) {
                 prepareDeleteStatement(id, connection, DELETE_SKILL)
-                clearConsole()
                 print("A competência com ID " + id + " foi deletada com sucesso.")
-
             } else {
                 clearConsole()
-                println("Não há competência com o id informado.")
+                throw new Error("Não há competência com o id informado.")
 
             }
         } catch (SQLException e) {
             handleExceptionDB(e, "deletar")
+        } finally {
+            connectionProvider.disconnect()
         }
     }
 }

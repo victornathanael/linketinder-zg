@@ -1,6 +1,6 @@
 package linketinder.zg.model.Candidate
 
-class Candidate {
+class CandidateJson {
     private int id
     private String name
     private String email
@@ -10,27 +10,6 @@ class Candidate {
     private String cep
     private String personalDescription
     private List<String> skills
-
-    Candidate(String name, String email, String cpf, int age, String state, String cep, String personalDescription, List<String>  skills) {
-        this.name = name
-        this.email = email
-        this.cpf = cpf
-        this.age = age
-        this.state = state
-        this.cep = cep
-        this.personalDescription = personalDescription
-        this.skills = skills
-    }
-
-    Candidate(String name, String email, String cpf, int age, String state, String cep, String personalDescription) {
-        this.name = name
-        this.email = email
-        this.cpf = cpf
-        this.age = age
-        this.state = state
-        this.cep = cep
-        this.personalDescription = personalDescription
-    }
 
     int getId() {
         return id
@@ -103,20 +82,4 @@ class Candidate {
     void setSkills(List<String> skills) {
         this.skills = skills
     }
-
-    @Override
-    String toString() {
-        return "Candidate{" +
-                "name='" + name + '\'' +
-                ", email='" + email + '\'' +
-                ", cpf='" + cpf + '\'' +
-                ", age=" + age +
-                ", state='" + state + '\'' +
-                ", cep='" + cep + '\'' +
-                ", personalDescription='" + personalDescription + '\'' +
-                ", skills=" + skills +
-                '}';
-    }
 }
-
-
