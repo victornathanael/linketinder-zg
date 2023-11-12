@@ -4,6 +4,9 @@ import com.google.gson.Gson
 import linketinder.zg.model.Candidate.Candidate
 import linketinder.zg.model.Candidate.CandidateDAO
 import linketinder.zg.model.Candidate.CandidateJson
+import linketinder.zg.util.HandleException
+import linketinder.zg.util.IsNullOrEmpty
+import linketinder.zg.util.SendHTTPServletResponse
 
 import javax.servlet.ServletException
 import javax.servlet.annotation.WebServlet
@@ -23,7 +26,7 @@ class CandidateController extends HttpServlet {
             resp.setContentType("application/json")
             resp.getWriter().write(gson.toJson(candidateJsonList))
         } catch (Exception e) {
-            handleException(resp, e, "Erro ao obter a lista de candidatos")
+            HandleException.handleExceptionController(resp, e, "Erro ao obter a lista de candidatos")
         }
     }
 
@@ -32,16 +35,16 @@ class CandidateController extends HttpServlet {
         try {
             Candidate candidate = readCandidateFromBody(req)
 
-            if (isNullOrEmpty(candidate) || hasNullOrEmptyFields(candidate)) {
-                sendBadRequestResponse(resp, "Campos obrigatórios não preenchidos")
+            if (IsNullOrEmpty.isNullOrEmpty(candidate) || hasNullOrEmptyFields(candidate)) {
+                SendHTTPServletResponse.sendBadRequestResponse(resp, "Campos obrigatórios não preenchidos")
                 return
             }
 
             CandidateDAO.create(candidate)
 
-            sendCreatedResponse(resp)
+            SendHTTPServletResponse.sendCreatedResponse(resp)
         } catch (Exception e) {
-            handleException(resp, e, "Erro ao criar candidato")
+            HandleException.handleExceptionController(resp, e, "Erro ao criar candidato")
         }
     }
 
@@ -51,8 +54,8 @@ class CandidateController extends HttpServlet {
             String candidateId = req.getParameter("id")
             Candidate candidate = readCandidateFromBody(req)
 
-            if (isNullOrEmpty(candidate) || hasNullOrEmptyFields(candidate)) {
-                sendBadRequestResponse(resp, "Campos obrigatórios não preenchidos")
+            if (IsNullOrEmpty.isNullOrEmpty(candidate) || hasNullOrEmptyFields(candidate)) {
+                SendHTTPServletResponse.sendBadRequestResponse(resp, "Campos obrigatórios não preenchidos")
                 return
             }
 
@@ -60,9 +63,9 @@ class CandidateController extends HttpServlet {
 
             resp.getWriter().write(gson.toJson(candidate))
 
-            sendOkResponse(resp)
+            SendHTTPServletResponse.sendOkResponse(resp)
         } catch (Exception e) {
-            handleException(resp, e, "Erro ao atualizar candidato")
+            HandleException.handleExceptionController(resp, e, "Erro ao atualizar candidato")
         }
     }
 
@@ -74,9 +77,9 @@ class CandidateController extends HttpServlet {
 
             resp.getWriter().write("Id " + candidateId + " deletado com sucesso")
 
-            sendOkResponse(resp)
+            SendHTTPServletResponse.sendOkResponse(resp)
         } catch (Exception e) {
-            handleException(resp, e, "Erro ao excluir candidato")
+            HandleException.handleExceptionController(resp, e, "Erro ao excluir candidato")
         }
     }
 
@@ -93,42 +96,10 @@ class CandidateController extends HttpServlet {
         }
     }
 
-    private static void sendCreatedResponse(HttpServletResponse resp) {
-        resp.setContentType("application/json")
-        resp.setCharacterEncoding("UTF-8")
-        resp.setStatus(HttpServletResponse.SC_CREATED)
-    }
-
-    private static void sendOkResponse(HttpServletResponse resp) {
-        resp.setContentType("application/json")
-        resp.setCharacterEncoding("UTF-8")
-        resp.setStatus(HttpServletResponse.SC_OK)
-    }
-
-    private static void sendBadRequestResponse(HttpServletResponse resp, String message) throws IOException {
-        resp.setCharacterEncoding("UTF-8")
-        resp.setStatus(HttpServletResponse.SC_BAD_REQUEST)
-        resp.getWriter().write(message)
-    }
-
     private static boolean hasNullOrEmptyFields(Candidate candidate) {
-        return isNullOrEmpty(candidate.getName())
-                || isNullOrEmpty(candidate.getEmail())
-                || isNullOrEmpty(candidate.getCpf())
-    }
-
-    private static void handleException(HttpServletResponse resp, Exception e, String errorMessage) throws IOException {
-        e.printStackTrace()
-        resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
-        resp.getWriter().write(errorMessage)
-    }
-
-    private static boolean isNullOrEmpty(String value) {
-        return value == null || value.trim().isEmpty()
-    }
-
-    private static boolean isNullOrEmpty(Object value) {
-        return value == null
+        return IsNullOrEmpty.isNullOrEmpty(candidate.getName())
+                || IsNullOrEmpty.isNullOrEmpty(candidate.getEmail())
+                || IsNullOrEmpty.isNullOrEmpty(candidate.getCpf())
     }
 }
 
