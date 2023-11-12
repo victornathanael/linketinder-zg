@@ -4,6 +4,9 @@ import com.google.gson.Gson
 import linketinder.zg.model.Job.Job
 import linketinder.zg.model.Job.JobDAO
 import linketinder.zg.model.Job.JobJson
+import linketinder.zg.util.HandleException
+import linketinder.zg.util.IsNullOrEmpty
+import linketinder.zg.util.SendHTTPServletResponse
 
 import javax.servlet.ServletException
 import javax.servlet.annotation.WebServlet
@@ -21,91 +24,83 @@ class JobController extends HttpServlet {
             List<JobJson> jobJsonList = JobDAO.list()
 
             resp.setContentType("application/json")
-
-            String json = gson.toJson(jobJsonList)
-
-            resp.getWriter().write(json)
+            resp.getWriter().write(gson.toJson(jobJsonList))
         } catch (Exception e) {
-            e.stackTrace
-            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            resp.getWriter().write("Erro ao obter a lista de vagas");
+            HandleException.handleExceptionController(resp, e, "Erro ao obter a lista de vagas")
         }
     }
+
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        BufferedReader reader = req.getReader()
-        StringBuilder jsonInput = new StringBuilder()
+        try {
+            Job job = readJobFromBody(req)
 
-        String line;
+            if (IsNullOrEmpty.isNullOrEmpty(job) || hasNullOrEmptyFields(job)) {
+                SendHTTPServletResponse.sendBadRequestResponse(resp,"Campos obrigatórios não preenchidos")
+                return
+            }
 
-        while ((line = reader.readLine()) != null) {
-            jsonInput.append(line);
+            JobDAO.create(job)
+
+            SendHTTPServletResponse.sendCreatedResponse(resp)
+        } catch (Exception e) {
+            HandleException.handleExceptionController(resp, e, "Erro ao criar vaga")
         }
 
-        Job job = gson.fromJson(jsonInput.toString(), Job.class)
-
-        if (isNullOrEmpty(job) || isNullOrEmpty(job.getName()) || isNullOrEmpty(job.getDescription()) || isNullOrEmpty(job.idCompany)) {
-            resp.setCharacterEncoding("UTF-8")
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST)
-            resp.getWriter().write("Campos obrigatórios não preenchidos")
-            return
-        }
-
-        JobDAO.create(job)
-
-        resp.setContentType("application/json")
-        resp.setCharacterEncoding("UTF-8")
-        resp.setStatus(HttpServletResponse.SC_CREATED)
     }
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String jobId = req.getParameter("id")
+        try {
+            String jobId = req.getParameter("id")
+            Job job = readJobFromBody(req)
 
-        StringBuilder jsonInput = new StringBuilder();
-        try (BufferedReader reader = req.getReader()) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                jsonInput.append(line);
+            if (IsNullOrEmpty.isNullOrEmpty(job) || hasNullOrEmptyFields(job)) {
+                SendHTTPServletResponse.sendBadRequestResponse(resp, "Campos obrigatórios não preenchidos")
+                return
             }
+
+            JobDAO.update(jobId.toInteger(), job)
+
+            resp.getWriter().write(gson.toJson(job))
+
+            SendHTTPServletResponse.sendOkResponse(resp)
+        } catch (Exception e) {
+            HandleException.handleExceptionController(resp, e, "Erro ao atualizar vaga")
         }
-
-        Gson gson = new Gson();
-        Job job = gson.fromJson(jsonInput.toString(), Job.class);
-
-        if (isNullOrEmpty(job) || isNullOrEmpty(job.getName()) || isNullOrEmpty(job.getDescription()) || isNullOrEmpty(job.idCompany)) {
-            resp.setCharacterEncoding("UTF-8")
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST)
-            resp.getWriter().write("Campos obrigatórios não preenchidos")
-            return
-        }
-
-        JobDAO.update(jobId.toInteger(), job)
-
-        resp.getWriter().write(gson.toJson(job))
-        resp.setContentType("application/json")
-        resp.setCharacterEncoding("UTF-8")
-        resp.setStatus(HttpServletResponse.SC_CREATED)
     }
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String jobId = req.getParameter("id");
-        JobDAO.delete(jobId.toInteger())
+        try {
+            String jobId = req.getParameter("id")
+            JobDAO.delete(jobId.toInteger())
 
+            resp.getWriter().write("Id " + jobId + " deletado com sucesso")
 
-        resp.getWriter().write("Id " + jobId + " deletado com sucesso")
-        resp.setContentType("application/json")
-        resp.setCharacterEncoding("UTF-8")
-        resp.setStatus(HttpServletResponse.SC_CREATED)
+            SendHTTPServletResponse.sendOkResponse(resp)
+        } catch (Exception e) {
+            HandleException.handleExceptionController(resp, e, "Erro ao excluir vaga")
+        }
     }
 
+    private Job readJobFromBody(HttpServletRequest req) throws IOException {
+        try (BufferedReader reader = req.getReader()) {
+            StringBuilder jsonInput = new StringBuilder()
+            String line
 
-    private static boolean isNullOrEmpty(String value) {
-        return value == null || value.trim().isEmpty();
+            while ((line = reader.readLine()) != null) {
+                jsonInput.append(line)
+            }
+
+            return gson.fromJson(jsonInput.toString(), Job.class)
+        }
     }
 
-    private static boolean isNullOrEmpty(Object value) {
-        return value == null;
+    private static boolean hasNullOrEmptyFields(Job job) {
+        return IsNullOrEmpty.isNullOrEmpty(job)
+                || IsNullOrEmpty.isNullOrEmpty(job.getName())
+                || IsNullOrEmpty.isNullOrEmpty(job.getDescription())
+                || IsNullOrEmpty.isNullOrEmpty(job.getIdCompany())
     }
 }
