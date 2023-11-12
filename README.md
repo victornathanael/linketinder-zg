@@ -48,38 +48,239 @@ cd linketinder-zg
 
 ## 🚀 Como Executar o Projeto
 
-Você pode executar o projeto através de uma IDE diretamente no arquivo App. 
+Antes de executar o projeto altere os atributos da classe PostgreSQLConnection com a url, user e password com as informações do seu banco de dados Postgre.
 
-Você pode usar uma IDE como o [IntelliJ IDEA](https://www.jetbrains.com/pt-br/idea/) ou o [Eclipse](https://www.eclipse.org/downloads/) para executar o projeto mais facilmente.
+O projeto pode ser executado utilizando o [Tomcat](https://tomcat.apache.org/tomcat-8.5-doc/index.html) para subir o servidor e o [Postman](https://www.postman.com/) para consumir os endpoints
 
-## 💻 Uso 
 
-Ao executar o aplicativo, você será apresentado a um menu com as seguintes opções:
+## 💻 Uso  
 
-1.  **Listar os Candidatos:** Exibe a lista com os candidatos cadastrados, apresentando algumas informações relevantes de cada candidato.
+A api pode ser acessada por padrão em localhost:8080 e pode ser alterada nas configurações do Tomcat
 
-2. **Listar as empresas:**  Exibe a lista com as empresas cadastrados, apresentando algumas informações relevantes de cada empresa.
+### ☝️🤓 Candidatos
 
-3. **Cadastrar um novo candidato:** É possivel cadastrar um novo candidato com as seguintes informações:
-   - Nome
-   - Email
-   - CPF
-   - Idade
-   - Estado
-   - CEP
-   - Descrição
-   - Competências (É possivel passar mais de uma competência usando virgula por ex: Java, Groovy, Html, Css, Angular)
+#### Listar Candidatos (GET)
+  
+```http
+GET /candidates
+```
 
-5. **Cadastrar uma nova empresa:**  É possivel cadastrar uma nova empresa com as seguintes informações:
-   - Nome
-   - Email
-   - CNPJ
-   - País
-   - Estado
-   - CEP
-   - Descrição
-   - Competências (É possivel passar mais de uma competência usando virgula por ex: Java, Groovy, Html, Css, Angular)
+#### Cadastrar Candidato (POST)
+  
+```http
+POST /candidates
+```
 
+Body da Requisição POST:
+
+```json
+{
+    "name": "Lindsay RR",
+    "email": "lin@gmail.com",
+    "cpf": "7544242",
+    "age": 21,
+    "state": "ES",
+    "cep": "168757",
+    "personalDescription": "Dev SR",
+    "skills":["java", "react", "css", "html"]
+}
+```
+
+#### Atualizar Candidato (PUT)
+  
+```http
+PUT /candidates?id=
+```
+
+*O ID do candidato a ser atualizado deve ser passado por parâmetro na URL*
+
+Body da Requisição PUT:
+
+```json
+{
+    "name": "Matheus Muniz",
+    "email": "matheus@gmail.com",
+    "cpf": "929262612",
+    "age": 21,
+    "state": "CE",
+    "cep": "62624848",
+    "personalDescription": "bla bla bla"
+}
+
+```
+
+#### Deletar Candidato (DELETE)
+
+```http
+DELETE /candidates?id=
+```
+
+*O ID do candidato a ser deletado deve ser passado por parâmetro na URL*
+
+### 👨‍💼 Empresas
+
+#### Listar Empresas (GET)
+
+```http
+GET /companies
+```
+
+#### Cadastrar Empresa (POST)
+
+```http
+POST /companies
+```
+
+Body da Requisição: 
+
+```json
+{
+    "name": "CornoTechnology",
+    "corporateEmail": "contato@corno.com",
+    "cnpj": "75.124.112/0006-12",
+    "country": "EUA",
+    "state": "CA",
+    "cep": "8657424212",
+    "companyDescription": "Presta serviços para corretora",
+    "skills": [
+        "JS",
+        "react",
+        "html",
+        "css"
+    ]
+}
+```
+
+#### Atualizar Empresa (PUT)
+
+```http
+PUT /companies?id=
+```
+
+*O ID da empresa a ser atualizado deve ser passado por parâmetro na URL*
+
+Body da Requisição:
+
+```json
+{
+    "name": "CornoTechnology",
+    "corporateEmail": "contato@tech.com",
+    "cnpj": "75.124.112/0006-12",
+    "country": "EUA",
+    "state": "CA",
+    "cep": "8657424212",
+    "companyDescription": "Presta serviços para corretora",
+    "skills": [
+        "JS",
+        "react",
+        "html",
+        "css"
+    ]
+}
+```
+
+#### Deletar Empresa (DELETE)
+
+```http
+DELETE /companies?id=
+```
+
+*O ID da empresa a ser deletado deve ser passado por parâmetro na URL*
+
+### 💼 Vagas de Emprego
+
+#### Listar Vagas (GET)
+
+```http
+GET /jobs
+```
+
+#### Cadastrar Vaga (POST)
+
+```http
+POST /jobs
+````
+
+Body da Requisição:
+
+```json
+{
+    "name": "Desenvolvedor Junior React Native",
+    "description": "bla bla bla ",
+    "idCompany": 40
+}
+```
+
+#### Atualizar Vaga (PUT)
+
+```http
+PUT /jobs?id=
+````
+
+*O ID da vaga a ser atualizado deve ser passado por parâmetro na URL*
+
+Body da Requisição: 
+
+```json
+{
+    "name": "Desenvolvedor SR Go",
+    "description": "bla bla bla ",
+    "idCompany": 2
+}
+```
+#### Deletar Vaga (DELETE)
+
+```http
+DELETE /jobs?id=
+```
+
+*O ID da vaga a ser deletada deve ser passado por parâmetro na URL*
+
+### 🛠️ Habilidades
+
+#### Listar Habilidades (GET)
+
+```http
+GET /skills
+```
+
+#### Cadastrar Habilidade (POST)
+
+```http
+POST /skills
+```
+
+Body da Requisição
+
+```json
+{
+    "name": "clean code"
+}
+```
+
+#### Atualizar Habilidade (PUT)
+
+```http
+PUT /skills?id=
+```
+
+*O ID da competência a ser atualizado deve ser passado por parâmetro na URL*
+
+Body da Requisição
+
+```json
+{
+    "name": "xml"
+}
+```
+
+#### Deletar Habilidade (DELETE)
+
+```http
+DELETE /skills?id=
+```
+
+*O ID da competência a ser deletada deve ser passado por parâmetro na URL*
 
 
 ## 🌹 Agradecimento
