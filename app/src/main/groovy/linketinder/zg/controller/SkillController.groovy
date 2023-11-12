@@ -1,12 +1,12 @@
 package linketinder.zg.controller
 
 import com.google.gson.Gson
-import linketinder.zg.model.Candidate.Candidate
-import linketinder.zg.model.Candidate.CandidateDAO
-import linketinder.zg.model.Candidate.CandidateJson
 import linketinder.zg.model.Skill.Skill
 import linketinder.zg.model.Skill.SkillDAO
 import linketinder.zg.model.Skill.SkillJson
+import linketinder.zg.util.HandleException
+import linketinder.zg.util.IsNullOrEmpty
+import linketinder.zg.util.SendHTTPServletResponse
 
 import javax.servlet.ServletException
 import javax.servlet.annotation.WebServlet
@@ -24,92 +24,81 @@ class SkillController extends HttpServlet {
             List<SkillJson> skillJsonList = SkillDAO.list()
 
             resp.setContentType("application/json")
-
-            String json = gson.toJson(skillJsonList)
-
-            resp.getWriter().write(json)
+            resp.getWriter().write(gson.toJson(skillJsonList))
         } catch (Exception e) {
-            e.stackTrace
-            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            resp.getWriter().write("Erro ao obter a lista de competências");
+            HandleException.handleExceptionController(resp, e, "Erro ao obter a lista de competências");
         }
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        BufferedReader reader = req.getReader()
-        StringBuilder jsonInput = new StringBuilder()
+        try {
+            Skill skill = readSkillFromBody(req)
 
-        String line;
+            if (IsNullOrEmpty.isNullOrEmpty(skill) || hasNullOrEmptyFields(skill)) {
+                SendHTTPServletResponse.sendBadRequestResponse(resp, "Campos obrigatórios não preenchidos")
+                return
+            }
 
-        while ((line = reader.readLine()) != null) {
-            jsonInput.append(line);
+            SkillDAO.create(skill)
+
+            SendHTTPServletResponse.sendCreatedResponse(resp)
+        } catch (Exception e) {
+            HandleException.handleExceptionController(resp, e, "Erro ao criar competência")
         }
-
-        Skill skill = gson.fromJson(jsonInput.toString(), Skill.class)
-
-        if (isNullOrEmpty(skill) || isNullOrEmpty(skill.getName())) {
-            resp.setCharacterEncoding("UTF-8")
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST)
-            resp.getWriter().write("Campos obrigatórios não preenchidos")
-            return
-        }
-
-        SkillDAO.create(skill)
-
-        resp.setContentType("application/json")
-        resp.setCharacterEncoding("UTF-8")
-        resp.setStatus(HttpServletResponse.SC_CREATED)
     }
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String skillId = req.getParameter("id")
+        try {
+            String skillId = req.getParameter("id")
+            Skill skill = readSkillFromBody(req)
 
-        StringBuilder jsonInput = new StringBuilder()
-        try (BufferedReader reader = req.getReader()) {
-            String line
-            while ((line = reader.readLine()) != null) {
-                jsonInput.append(line)
+            if (IsNullOrEmpty.isNullOrEmpty(skill) || hasNullOrEmptyFields(skill)) {
+                SendHTTPServletResponse.sendBadRequestResponse(resp, "Campos obrigatórios não preenchidos")
+                return
             }
+
+            SkillDAO.update(skillId.toInteger(), skill)
+
+            resp.getWriter().write(gson.toJson(skill))
+
+            SendHTTPServletResponse.sendOkResponse(resp)
+        } catch (Exception e) {
+            HandleException.handleExceptionController(resp, e, "Erro ao atualizar competências")
         }
-
-        Gson gson = new Gson();
-        Skill skill = gson.fromJson(jsonInput.toString(), Skill.class)
-
-        if (isNullOrEmpty(skill) || isNullOrEmpty(skill.getName())) {
-            resp.setCharacterEncoding("UTF-8")
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST)
-            resp.getWriter().write("Campos obrigatórios não preenchidos")
-            return
-        }
-
-        SkillDAO.update(skillId.toInteger(), skill)
-
-        resp.getWriter().write(gson.toJson(skill))
-        resp.setContentType("application/json")
-        resp.setCharacterEncoding("UTF-8")
-        resp.setStatus(HttpServletResponse.SC_CREATED)
     }
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String skillId = req.getParameter("id");
-        SkillDAO.delete(skillId.toInteger())
+        try {
+            String skillId = req.getParameter("id");
+            SkillDAO.delete(skillId.toInteger())
 
+            resp.getWriter().write("Id " + skillId + " deletado com sucesso")
 
-        resp.getWriter().write("Id " + skillId + " deletado com sucesso")
-        resp.setContentType("application/json")
-        resp.setCharacterEncoding("UTF-8")
-        resp.setStatus(HttpServletResponse.SC_CREATED)
+            SendHTTPServletResponse.sendOkResponse(resp)
+        } catch (Exception e) {
+            HandleException.handleExceptionController(resp, e, "Erro ao excluir competência")
+        }
     }
 
+    private Skill readSkillFromBody(HttpServletRequest req) throws IOException {
+        try (BufferedReader reader = req.getReader()) {
+            StringBuilder jsonInput = new StringBuilder()
 
-    private static boolean isNullOrEmpty(String value) {
-        return value == null || value.trim().isEmpty();
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+                jsonInput.append(line);
+            }
+
+            return gson.fromJson(jsonInput.toString(), Skill.class)
+        }
     }
 
-    private static boolean isNullOrEmpty(Object value) {
-        return value == null;
+    private static boolean hasNullOrEmptyFields(Skill skill) {
+        return IsNullOrEmpty.isNullOrEmpty(skill.getName())
     }
+
 }
