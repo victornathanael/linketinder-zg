@@ -14,14 +14,14 @@ class PostgreSQLConnection implements IConnectionProvider {
     Connection connect() {
         if (connection == null) {
             try {
-                Class.forName("org.postgresql.Driver");
+                Class.forName("org.postgresql.Driver")
                 connection = DriverManager.getConnection(url, user, password)
             } catch (ClassNotFoundException | SQLException e) {
                 e.printStackTrace();
                 throw new RuntimeException("Erro ao conectar ao banco de dados", e)
             }
         }
-        return connection;
+        return connection
     }
 
     @Override

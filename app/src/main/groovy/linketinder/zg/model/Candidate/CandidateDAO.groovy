@@ -9,7 +9,7 @@ import java.util.stream.Collectors
 
 import static linketinder.zg.util.GetSkillId.getSkillId
 import static linketinder.zg.util.GetRowCount.*
-import static linketinder.zg.util.HandleExceptionDB.*
+import static linketinder.zg.util.HandleException.*
 import static linketinder.zg.util.PrepareStatement.*
 import static linketinder.zg.util.CandidateParameters.*
 import static linketinder.zg.util.LinkSkillWith.*

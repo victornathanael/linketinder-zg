@@ -10,7 +10,7 @@ import java.sql.ResultSet
 import java.sql.SQLException
 
 import static linketinder.zg.util.GetRowCount.getRowCount
-import static linketinder.zg.util.HandleExceptionDB.handleExceptionDB
+import static linketinder.zg.util.HandleException.*
 import static linketinder.zg.util.PrepareStatement.*
 import static linketinder.zg.util.SkillParameters.setSkillParameters
 import static linketinder.zg.util.SkillParameters.setSkillUpdateParameters
