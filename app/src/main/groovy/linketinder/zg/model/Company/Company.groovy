@@ -1,6 +1,7 @@
 package linketinder.zg.model.Company
 
 class Company {
+    private int id
     private String name
     private String corporateEmail
     private String cnpj
@@ -10,25 +11,12 @@ class Company {
     private String companyDescription
     private List<String> skills
 
-    Company(String name, String corporateEmail, String cnpj, String country, String state, String cep, String companyDescription, List<String> skills) {
-        this.name = name
-        this.corporateEmail = corporateEmail
-        this.cnpj = cnpj
-        this.country = country
-        this.state = state
-        this.cep = cep
-        this.companyDescription = companyDescription
-        this.skills = skills
+    String getId() {
+        return id
     }
 
-    Company(String name, String corporateEmail, String cnpj, String country, String state, String cep, String companyDescription) {
-        this.name = name
-        this.corporateEmail = corporateEmail
-        this.cnpj = cnpj
-        this.country = country
-        this.state = state
-        this.cep = cep
-        this.companyDescription = companyDescription
+    void setId(int id) {
+        this.id = id
     }
 
     String getName() {

@@ -3,7 +3,7 @@ package linketinder.zg.controller
 import com.google.gson.Gson
 import linketinder.zg.model.Company.Company
 import linketinder.zg.model.Company.CompanyDAO
-import linketinder.zg.model.Company.CompanyJson
+
 import linketinder.zg.util.HandleException
 import linketinder.zg.util.IsNullOrEmpty
 import linketinder.zg.util.SendHTTPServletResponse
@@ -21,10 +21,10 @@ class CompanyController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
-            List<CompanyJson> companyJsonList = CompanyDAO.list()
+            List<Company> companyList = CompanyDAO.list()
 
             resp.setContentType("application/json")
-            resp.getWriter().write(gson.toJson(companyJsonList))
+            resp.getWriter().write(gson.toJson(companyList))
 
         } catch (Exception e) {
             HandleException.handleExceptionController(resp, e, "Erro ao obter a lista de empresas")

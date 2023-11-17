@@ -11,27 +11,6 @@ class Candidate {
     private String personalDescription
     private List<String> skills
 
-    Candidate(String name, String email, String cpf, int age, String state, String cep, String personalDescription, List<String>  skills) {
-        this.name = name
-        this.email = email
-        this.cpf = cpf
-        this.age = age
-        this.state = state
-        this.cep = cep
-        this.personalDescription = personalDescription
-        this.skills = skills
-    }
-
-    Candidate(String name, String email, String cpf, int age, String state, String cep, String personalDescription) {
-        this.name = name
-        this.email = email
-        this.cpf = cpf
-        this.age = age
-        this.state = state
-        this.cep = cep
-        this.personalDescription = personalDescription
-    }
-
     int getId() {
         return id
     }

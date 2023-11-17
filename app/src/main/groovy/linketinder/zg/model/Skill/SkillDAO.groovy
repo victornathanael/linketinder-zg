@@ -12,6 +12,7 @@ import java.sql.SQLException
 import static linketinder.zg.util.GetRowCount.getRowCount
 import static linketinder.zg.util.HandleException.*
 import static linketinder.zg.util.PrepareStatement.*
+import static linketinder.zg.util.SkillParameters.setListSkillParameters
 import static linketinder.zg.util.SkillParameters.setSkillParameters
 import static linketinder.zg.util.SkillParameters.setSkillUpdateParameters
 
@@ -26,8 +27,8 @@ class SkillDAO {
     private static final IConnectionProvider connectionProvider = ConnectionProviderFactory.createConnectionProvider(DatabaseType.POSTGRE)
 
 
-    static List<SkillJson> list() {
-        List<SkillJson> skillJsonArrayList = new ArrayList<>()
+    static List<Skill> list() {
+        List<Skill> skillArrayList = new ArrayList<>()
 
         try (Connection connection = connectionProvider.connect()) {
             PreparedStatement allSkills = prepareAllStatement(connection, SEARCH_ALL_SKILLS)
@@ -37,11 +38,7 @@ class SkillDAO {
 
             if (skillCount > 0) {
                 while (resultSet.next()) {
-                    SkillJson skillJson = new SkillJson()
-                    skillJson.setId(resultSet.getInt("id"))
-                    skillJson.setName(resultSet.getString("nome"))
-
-                    skillJsonArrayList.add(skillJson)
+                    skillArrayList.add(setListSkillParameters(resultSet))
                 }
 
             } else {
@@ -54,7 +51,7 @@ class SkillDAO {
             connectionProvider.disconnect()
         }
 
-        return skillJsonArrayList
+        return skillArrayList
     }
 
     static void create(Skill skill) {

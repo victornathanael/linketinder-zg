@@ -3,7 +3,7 @@ package linketinder.zg.controller
 import com.google.gson.Gson
 import linketinder.zg.model.Skill.Skill
 import linketinder.zg.model.Skill.SkillDAO
-import linketinder.zg.model.Skill.SkillJson
+
 import linketinder.zg.util.HandleException
 import linketinder.zg.util.IsNullOrEmpty
 import linketinder.zg.util.SendHTTPServletResponse
@@ -21,10 +21,10 @@ class SkillController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
-            List<SkillJson> skillJsonList = SkillDAO.list()
+            List<Skill> skillList = SkillDAO.list()
 
             resp.setContentType("application/json")
-            resp.getWriter().write(gson.toJson(skillJsonList))
+            resp.getWriter().write(gson.toJson(skillList))
         } catch (Exception e) {
             HandleException.handleExceptionController(resp, e, "Erro ao obter a lista de competências");
         }

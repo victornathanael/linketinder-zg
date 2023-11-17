@@ -3,17 +3,15 @@ package linketinder.zg.model.Company
 import linketinder.zg.db.factory.ConnectionProviderFactory
 import linketinder.zg.db.factory.DatabaseType
 import linketinder.zg.db.factory.IConnectionProvider
-import linketinder.zg.model.Candidate.CandidateJson
 
 import java.sql.*
-import java.util.stream.Collectors
 
-import static linketinder.zg.util.GetRowCount.getRowCount
-import static linketinder.zg.util.HandleException.*
-import static linketinder.zg.util.GetSkillId.*
-import static linketinder.zg.util.PrepareStatement.*
-import static linketinder.zg.util.LinkSkillWith.*
 import static linketinder.zg.util.CompanyParameters.*
+import static linketinder.zg.util.GetRowCount.getRowCount
+import static linketinder.zg.util.GetSkillId.getSkillId
+import static linketinder.zg.util.HandleException.handleExceptionDB
+import static linketinder.zg.util.LinkSkillWith.linkSkillWith
+import static linketinder.zg.util.PrepareStatement.*
 
 class CompanyDAO {
     private static final String INSERT_COMPANY = "INSERT INTO empresas (nome, email, cnpj, pais, estado, cep, descricao) VALUES (?, ?, ?, ?, ?, ?, ?)"
@@ -27,8 +25,8 @@ class CompanyDAO {
 
     private static final IConnectionProvider connectionProvider = ConnectionProviderFactory.createConnectionProvider(DatabaseType.POSTGRE)
 
-    static List<CompanyJson> list() {
-        List<CompanyJson> companyJsonArrayList = new ArrayList<>()
+    static List<Company> list() {
+        List<Company> companyArrayList = new ArrayList()
 
         try (Connection connection = connectionProvider.connect()) {
             PreparedStatement allCompanies = prepareAllStatement(connection, SEARCH_ALL_COMPANIES)
@@ -38,26 +36,7 @@ class CompanyDAO {
 
             if (companyCount > 0) {
                 while (resultSet.next()) {
-
-                    CompanyJson companyJson = new CompanyJson()
-                    companyJson.setId(resultSet.getInt("id"))
-                    companyJson.setName(resultSet.getString("nome").trim())
-                    companyJson.setCorporateEmail(resultSet.getString("email").trim())
-                    companyJson.setCnpj(resultSet.getString("cnpj").trim())
-                    companyJson.setCountry(resultSet.getString("pais"))
-                    companyJson.setState(resultSet.getString("estado").trim())
-                    companyJson.setCep(resultSet.getString("cep").trim())
-                    companyJson.setCompanyDescription(resultSet.getString("descricao").trim())
-
-                    String skillsString = resultSet.getString("competencias".trim())
-                    List<String> skillsList = (skillsString != null)
-                            ? Arrays.stream(skillsString.split(","))
-                            .map(String::trim)
-                            .collect(Collectors.toList())
-                            : Collections.emptyList() as List<String>
-                    companyJson.setSkills(skillsList)
-
-                    companyJsonArrayList.add(companyJson)
+                    companyArrayList.add(setListCompanyParameters(resultSet))
                 }
             } else {
                 println("Não existem empresas cadastradas");
@@ -69,7 +48,7 @@ class CompanyDAO {
             connectionProvider.disconnect()
         }
 
-        return companyJsonArrayList
+        return companyArrayList
     }
 
     static void create(Company company) {

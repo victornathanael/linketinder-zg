@@ -1,10 +1,15 @@
 package linketinder.zg.model.Skill
 
 class Skill {
+    private int id
     private String name
 
-    Skill(String name) {
-        this.name = name
+    int getId() {
+        return id
+    }
+
+    void setId(int id) {
+        this.id = id
     }
 
     String getName() {

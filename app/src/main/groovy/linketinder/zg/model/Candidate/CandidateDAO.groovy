@@ -5,14 +5,13 @@ import linketinder.zg.db.factory.DatabaseType
 import linketinder.zg.db.factory.IConnectionProvider
 
 import java.sql.*
-import java.util.stream.Collectors
 
-import static linketinder.zg.util.GetSkillId.getSkillId
-import static linketinder.zg.util.GetRowCount.*
-import static linketinder.zg.util.HandleException.*
-import static linketinder.zg.util.PrepareStatement.*
 import static linketinder.zg.util.CandidateParameters.*
-import static linketinder.zg.util.LinkSkillWith.*
+import static linketinder.zg.util.GetRowCount.getRowCount
+import static linketinder.zg.util.GetSkillId.getSkillId
+import static linketinder.zg.util.HandleException.handleExceptionDB
+import static linketinder.zg.util.LinkSkillWith.linkSkillWith
+import static linketinder.zg.util.PrepareStatement.*
 
 class CandidateDAO  {
     private static final String INSERT_CANDIDATE = "INSERT INTO candidatos (nome, email, cpf, idade, estado, cep, descricao) VALUES (?, ?, ?, ?, ?, ?, ?)"
@@ -26,8 +25,8 @@ class CandidateDAO  {
 
     private static final IConnectionProvider connectionProvider = ConnectionProviderFactory.createConnectionProvider(DatabaseType.POSTGRE)
 
-    static List<CandidateJson> list() {
-        List<CandidateJson> candidateJsonArrayList = new ArrayList<>()
+    static List<Candidate> list() {
+        List<Candidate> candidateArrayList = new ArrayList()
 
         try (Connection connection = connectionProvider.connect()) {
             PreparedStatement allCandidates = prepareAllStatement(connection, SEARCH_ALL_CANDIDATES)
@@ -37,26 +36,7 @@ class CandidateDAO  {
 
             if (candidateCount > 0) {
                 while (resultSet.next()) {
-
-                    CandidateJson candidateJson = new CandidateJson()
-                    candidateJson.setId(resultSet.getInt("id"))
-                    candidateJson.setName(resultSet.getString("nome").trim())
-                    candidateJson.setEmail(resultSet.getString("email").trim())
-                    candidateJson.setCpf(resultSet.getString("cpf").trim())
-                    candidateJson.setAge(resultSet.getInt("idade"))
-                    candidateJson.setState(resultSet.getString("estado").trim())
-                    candidateJson.setCep(resultSet.getString("cep").trim())
-                    candidateJson.setPersonalDescription(resultSet.getString("descricao").trim())
-
-                    String skillsString = resultSet.getString("competencias".trim())
-                    List<String> skillsList = (skillsString != null)
-                            ? Arrays.stream(skillsString.split(","))
-                                .map(String::trim)
-                                .collect(Collectors.toList())
-                            : Collections.emptyList() as List<String>
-                    candidateJson.setSkills(skillsList)
-
-                    candidateJsonArrayList.add(candidateJson)
+                    candidateArrayList.add(setListCandidateParameters(resultSet))
                 }
             } else {
                 throw new Error("Não existem candidatos cadastrados")
@@ -67,7 +47,7 @@ class CandidateDAO  {
             connectionProvider.disconnect()
         }
 
-        return candidateJsonArrayList
+        return candidateArrayList
     }
 
     static void create(Candidate candidate) {

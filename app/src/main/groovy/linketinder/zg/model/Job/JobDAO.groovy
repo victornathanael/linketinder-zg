@@ -12,6 +12,7 @@ import java.sql.SQLException
 import static linketinder.zg.util.GetRowCount.getRowCount
 import static linketinder.zg.util.HandleException.*
 import static linketinder.zg.util.JobsParameters.setJobParameters
+import static linketinder.zg.util.JobsParameters.setListJobParameters
 import static linketinder.zg.util.JobsParameters.setUpdateJobParameters
 import static linketinder.zg.util.PrepareStatement.*
 
@@ -24,8 +25,8 @@ class JobDAO {
     public static final String DELETE_JOB = "DELETE FROM vagas WHERE id=?"
     private static final IConnectionProvider connectionProvider = ConnectionProviderFactory.createConnectionProvider(DatabaseType.POSTGRE)
 
-    static List<JobJson> list() {
-        List<JobJson> jobJsonArrayList = new ArrayList<>()
+    static List<Job> list() {
+        List<Job> jobArrayList = new ArrayList()
 
         try (Connection connection = connectionProvider.connect()) {
             PreparedStatement allJobs = prepareAllStatement(connection, SEARCH_ALL_JOBS)
@@ -35,14 +36,7 @@ class JobDAO {
 
             if (jobCount > 0) {
                 while (resultSet.next()) {
-                    JobJson jobJson = new JobJson()
-                    jobJson.setId(resultSet.getInt("id"))
-                    jobJson.setName(resultSet.getString("nome"))
-                    jobJson.setDescription(resultSet.getString("descricao"))
-                    jobJson.setIdCompany(resultSet.getInt("empresa_id"))
-                    jobJson.setNameCompany(resultSet.getString("empresa_nome"))
-
-                    jobJsonArrayList.add(jobJson)
+                    jobArrayList.add(setListJobParameters(resultSet))
                 }
             } else {
                 throw new Error("Não existem vagas cadastradas")
@@ -54,7 +48,7 @@ class JobDAO {
             connectionProvider.disconnect()
         }
 
-        return jobJsonArrayList
+        return jobArrayList
     }
 
     static void create(Job job) {

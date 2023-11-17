@@ -3,7 +3,7 @@ package linketinder.zg.controller
 import com.google.gson.Gson
 import linketinder.zg.model.Job.Job
 import linketinder.zg.model.Job.JobDAO
-import linketinder.zg.model.Job.JobJson
+
 import linketinder.zg.util.HandleException
 import linketinder.zg.util.IsNullOrEmpty
 import linketinder.zg.util.SendHTTPServletResponse
@@ -21,10 +21,10 @@ class JobController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
-            List<JobJson> jobJsonList = JobDAO.list()
+            List<Job> jobList = JobDAO.list()
 
             resp.setContentType("application/json")
-            resp.getWriter().write(gson.toJson(jobJsonList))
+            resp.getWriter().write(gson.toJson(jobList))
         } catch (Exception e) {
             HandleException.handleExceptionController(resp, e, "Erro ao obter a lista de vagas")
         }

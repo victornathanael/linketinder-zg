@@ -3,7 +3,6 @@ package linketinder.zg.controller
 import com.google.gson.Gson
 import linketinder.zg.model.Candidate.Candidate
 import linketinder.zg.model.Candidate.CandidateDAO
-import linketinder.zg.model.Candidate.CandidateJson
 import linketinder.zg.util.HandleException
 import linketinder.zg.util.IsNullOrEmpty
 import linketinder.zg.util.SendHTTPServletResponse
@@ -21,10 +20,10 @@ class CandidateController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
-            List<CandidateJson> candidateJsonList = CandidateDAO.list()
+            List<Candidate> candidateList = CandidateDAO.list()
 
             resp.setContentType("application/json")
-            resp.getWriter().write(gson.toJson(candidateJsonList))
+            resp.getWriter().write(gson.toJson(candidateList))
         } catch (Exception e) {
             HandleException.handleExceptionController(resp, e, "Erro ao obter a lista de candidatos")
         }
