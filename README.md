@@ -48,7 +48,7 @@ cd linketinder-zg
 
 ## 🚀 Como Executar o Projeto
 
-Antes de executar o projeto altere os atributos da classe PostgreSQLConnection com a url, user e password com as informações do seu banco de dados Postgre.
+Antes de executar o projeto altere os atributos da classe PostgreSQLConnection com a url, user e password com as informações do seu banco de dados Postgres.
 
 O projeto pode ser executado utilizando o [Tomcat](https://tomcat.apache.org/tomcat-8.5-doc/index.html) para subir o servidor e o [Postman](https://www.postman.com/) para consumir os endpoints
 
